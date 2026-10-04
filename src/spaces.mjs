@@ -14,7 +14,11 @@ export const spaces=[
 export const varianceScales={oklab:[.12,.02,.02],srgb:[.25,.25,.25],linear:[.25,.25,.25],hsv:[1/12,.25,.25],hsl:[1/12,.25,.25],'hsl-bicone':[1/12,.25,.25],xyz:whiteScales(),lab:[2500,10000,10000]};
 function whiteScales(){return [.9504559270516716**2/4,.25,1.0890577507598784**2/4];}
 const axisOrder=space=>space==='oklab'||space==='lab'?[1,0,2]:space.startsWith('h')?[0,2,1]:[0,1,2];
-export function axisLabels(space,variance=false){return variance?axisOrder(space).map(i=>coordinateLabels(space,true)[i]):spaces.find(s=>s.value===space).axes;}
+// A fixed six-decade floor gives zero a finite location and preserves comparisons
+// across filters and Minecraft releases. Inspector/export values stay unscaled.
+export const VARIANCE_DECADES=6;
+export function logVariance(value,scale){return Math.log10(1+Math.max(0,value)/scale*(10**VARIANCE_DECADES-1))/VARIANCE_DECADES;}
+export function axisLabels(space,variance=false){return variance?axisOrder(space).map(i=>`log₁₀ ${coordinateLabels(space,true)[i]}`):spaces.find(s=>s.value===space).axes;}
 export function hsv([r,g,b]){const max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;let h=0;if(d)h=((max===r?(g-b)/d+(g<b?6:0):max===g?(b-r)/d+2:(r-g)/d+4)/6);return [h,max?d/max:0,max];}
 export function hsl(rgb){const [h,,v]=hsv(rgb),min=Math.min(...rgb),l=(v+min)/2,d=v-min;return [h,d?d/(1-Math.abs(2*l-1)):0,l];}
 // W3C CSS Color 4 sRGB-to-XYZ matrix. CIELAB here deliberately retains D65;
@@ -34,7 +38,7 @@ export function coordinates(rgb,space,stats,variance=false){
 }
 export function project(rgb,space,stats,variance=false){
  const c=coordinates(rgb,space,stats,variance);
- if(variance)return axisOrder(space).map(i=>c[i]/varianceScales[space][i]*2.6-1.3);
+ if(variance)return axisOrder(space).map(i=>logVariance(c[i],varianceScales[space][i])*2.6-1.3);
  if(space==='oklab')return [c[1]*2.6,(c[0]-.5)*2.6,c[2]*2.6];
  if(space==='lab')return [c[1]/100*1.3,(c[0]/100-.5)*2.6,c[2]/100*1.3];
  if(space.startsWith('h')){const radius=c[1]*1.3*(space==='hsl-bicone'?1-Math.abs(2*c[2]-1):1);return [Math.cos(c[0]*Math.PI*2)*radius,(c[2]-.5)*2.6,Math.sin(c[0]*Math.PI*2)*radius];}

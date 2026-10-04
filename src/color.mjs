@@ -47,7 +47,7 @@ const cakeVariants=new Set(['cake','candle_cake',...['white','orange','magenta',
 export function groupMaterials(blocks) {
   const groups=new Map();
   for(const block of blocks){const key=cakeVariants.has(block.id)?'family:minecraft:cake':block.materialKey||block.id;const members=groups.get(key)||[];members.push(block);groups.set(key,members);}
-  const rank=b=>[b.id==='minecraft:cake'?-1:b.category.startsWith('full_cube')?0:1,b.id.length];
+  const rank=b=>[b.id==='minecraft:cake'?-1:(b.geometryClass==='cube'||b.category.startsWith('full_cube'))?0:1,b.id.length];
   return [...groups.values()].map(members=>{
     const sorted=[...members].sort((a,b)=>rank(a)[0]-rank(b)[0]||rank(a)[1]-rank(b)[1]||a.id.localeCompare(b.id));
     return {...sorted[0],variants:sorted};

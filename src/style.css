@@ -164,3 +164,18 @@ html [data-form-glass-root] .glass-select-option{height:auto;min-height:var(--se
 
 /* Fitting menus must not scroll decorative glass feathers. */
 .select-options[data-scroll-overflow=false]{overflow-y:hidden}
+
+/* Window movement updates only this compositor layer, never React state. */
+.section-window-position{position:fixed;left:0;top:0;z-index:40;will-change:transform;contain:layout style}
+.section-window-position .voxel-section-window{position:relative!important;inset:auto!important;max-height:calc(100dvh - 16px);overflow-y:auto;overflow-x:hidden}
+.fast-panel{contain:layout style;isolation:isolate}
+.section-drag-handle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;background:transparent;border:0;border-bottom:1px solid #ffffff12;color:var(--muted);font:9px monospace;padding:4px 6px 8px;cursor:grab;touch-action:none;user-select:none}
+.section-drag-handle:active{cursor:grabbing}
+.control-panel{max-height:calc(100dvh - 180px);overflow-y:auto;overflow-x:hidden}
+.version-filter-note{font:9px monospace;color:var(--muted);margin:0;line-height:1.5}
+.air-inspector .turntable-viewport{height:100px}
+.air-inspector .air-symbol{height:100px;display:grid;place-items:center;color:var(--muted);font:12px monospace}
+.version-loading{position:absolute;top:85px;left:50%;transform:translateX(-50%);font:11px monospace;color:#e8c67a;pointer-events:none}
+@media(max-width:600px){.control-panel{top:120px;width:180px;max-height:calc(100dvh - 190px)}.control-panel .panel-content{padding:12px}.empty-scene{left:205px;right:8px}}
+
+.texture canvas{width:100%;height:100%;image-rendering:pixelated;display:block}

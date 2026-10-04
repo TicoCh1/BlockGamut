@@ -47,7 +47,7 @@ export function sectionTest(cell,data,section,layerOnly=false){
  const normal=-Math.sin(value)*x+Math.cos(value)*z,along=Math.cos(value)*x+Math.sin(value)*z;
  return layer?Math.abs(normal)<=.65&&along>=-.5:section.flip?normal>=0:normal<=0;
 }
-export function visibleVoxels(data,section){return data.cells.map((_,i)=>i).filter(i=>sectionTest(data.cells[i],data,section));}
+export function visibleVoxels(data,section){const result=[];for(let i=0;i<data.cells.length;i++)if(sectionTest(data.cells[i],data,section))result.push(i);return result;}
 /** One framing per grid/axis, never fitted to the currently intersected cells. */
 export function sliceViewport(data,axis,size=384){
  const axes={x:[2,1],y:[0,2],z:[0,1]}[axis];let min,max;

@@ -17,11 +17,13 @@
 - Fuse.js 7.1.0 by Kiro Risk: Apache-2.0. See `licenses/FUSE.txt` and
   https://github.com/krisk/Fuse.
 - Minecraft names, model definitions, dimensions, texture data and animation
-  frames: Mojang/Microsoft, based on Minecraft 1.21.10. Application and
+  frames: Mojang/Microsoft, from official Java releases 1.7.2 through 26.3.
+  Identical texture pixels are stored once; release changes use incremental
+  catalog, model and animation records. Application and
   dependency licenses do not relicense these assets. Models show representative
   placed states, including static previews for special renderers.
-- Palette values retain their MineAgent provenance; supplemental colours and
-  surface statistics derive from the bundled Minecraft texture snapshot.
+- Palette colours and surface statistics derive from each selected release's
+  original Minecraft face texels, weighted by face area and transparency.
 - Java legacy block ID aliases: derived from EngineHub WorldEdit's legacy
   registry (GPL-3.0-or-later). Attribution remains in `src/legacyIds.mjs`;
   see `licenses/GPL-3.0.txt` and https://github.com/EngineHub/WorldEdit.
