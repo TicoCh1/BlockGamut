@@ -25,6 +25,7 @@ Created by [TicoCh1](https://github.com/TicoCh1). Minecraft textures © Mojang /
 | Feature | How it works |
 | --- | --- |
 | [Editable colour schemes](#manage-colour-schemes) | Independent length, colour space, Lerp/Slerp and filters; direct dragging, pinning and refresh. |
+| [Desktop wheel browsing](#browse-alternatives-with-the-wheel) | Scroll an unpinned interior block to try eligible alternatives, with an immediate five-block glass preview. |
 | [Unique blocks and Minecraft lock badges](#unique-blocks-and-pinned-points) | No repeated block ID within a scheme; pinned blocks use the original cartography-table lock texture. |
 | [Clipboard export](#copy-and-export) | Modern `minecraft:…` IDs, legacy `5:1` IDs or actual block HEX colours, in slot order. |
 | [3D path highlights](#highlight-interpolation-paths) | Lerp straight segments or Slerp arcs between displayed control points, with outlines around the actual chosen blocks. |
@@ -138,6 +139,14 @@ Drag the selected block's **title or model thumbnail in the right inspector** in
 | ![An existing block moves to the drop slot without duplication](media/screenshots/42-block-drag-preview.jpg) | ![Dragging a block out leaves an empty slot while keeping the scheme length](media/screenshots/57-scheme-remove.jpg) |
 
 Use the row's **refresh arrow** to fill unpinned slots with the current colour space, interpolation and filters. Pinned blocks remain exact. Edits stay visible until refresh; when there are no pins, refresh uses the first and last remaining blocks as temporary endpoints. Incoming inspector blocks start unpinned. Clicking a slot also displays its actual block in the inspector, including blocks outside the explorer filters.
+
+### Browse alternatives with the wheel
+
+On desktop, hover a filled, unpinned interior slot and scroll **down for the next candidate, up for the previous**. Candidates must pass that scheme's filters and remain unused elsewhere in the row. Their colour-space projection onto the line joining the immediately previous and next visible blocks must lie between those endpoints. Alternatives are ordered by distance to the neighbours' **Lerp/Slerp midpoint**, using the scheme's own colour space. Only the hovered slot changes; its neighbours and pins stay put. The inspector, export and enabled highlight update with the chosen block.
+
+The first scroll immediately shows a secondary glass strip: **two previous candidates, the current block and two next candidates**, with names and original model thumbnails. It has no reveal or resize animation and reuses the candidate search while scrolling. At either end of the candidate list, scrolling stops and unavailable preview positions remain empty. The strip closes when the pointer leaves the slot or scrolling pauses. Pinned blocks, end slots, empty slots and slots missing a neighbour do not browse. This feature is disabled on mobile and touch-only devices; ordinary panel scrolling stays available there.
+
+![Immediate vertical glass preview with two alternatives above and below the current scheme block](media/screenshots/59-scheme-wheel.jpg)
 
 ### Lerp and Slerp
 

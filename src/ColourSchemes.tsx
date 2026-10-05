@@ -2,6 +2,7 @@ import {schemeHighlight} from './schemePaths.mjs';
 import {SchemeExport} from './SchemeExport';
 import {BlockThumbnail} from './BlockThumbnail';
 import {DraggableBlock} from './DraggableBlock';
+import {useSchemeWheel,SchemeWheelPreview} from './SchemeWheel';
 import {useEffect,useMemo,useState} from 'react';
 import {GlassPanel,GlassButton,GlassInput,GlassSelect,GlassSwitch,GlassScrollArea,GlassDialog} from '@form-glass/react';
 import {Plus,Settings2,X,RotateCcw,ClipboardCopy,Route} from 'lucide-react';
@@ -15,7 +16,7 @@ import type {Block,Space,SchemeHighlight} from './types';
 import type {ModelResources} from './useModels';
 
 interface SchemeFilters {categories:string[];query:string;opaque:boolean;tinted:boolean;list:string;varianceMin:number;varianceMax:number}
-interface Scheme {id:string;name:string;length:number;anchors:Record<number,string>;tiles?:(string|null)[];space:Space;interpolation?:'lerp'|'slerp';highlight?:boolean;filters:SchemeFilters;ranges:Partial<Record<Space,[number,number]>>}
+export interface Scheme {id:string;name:string;length:number;anchors:Record<number,string>;tiles?:(string|null)[];space:Space;interpolation?:'lerp'|'slerp';highlight?:boolean;filters:SchemeFilters;ranges:Partial<Record<Space,[number,number]>>}
 type SchemeUpdate=Partial<Scheme>|((scheme:Scheme)=>Scheme);
 
 
@@ -23,8 +24,10 @@ function SchemeRow({scheme,blocks,resources,collection,blacklist,onChange,onDele
  const {view,t}=useLocale(),[slot,setSlot]=useState(0),[hover,setHover]=useState<number|null>(null);
  useEffect(()=>setSlot(v=>Math.min(v,scheme.length-1)),[scheme.length]);
  const cells=useMemo(()=>schemeCells(scheme,blocks,{collection,blacklist}),[scheme,blocks,collection,blacklist]);
+ const wheel=useSchemeWheel({scheme,cells,blocks,collection,blacklist,onChoose:(index,id)=>{setSlot(index);onChange(current=>{const tiles=schemeCells(current,blocks,{collection,blacklist}).map(c=>c.id||c.block?.id||null);tiles[index]=id;return {...current,tiles};});onPick(id);}});
  const toggle=(index:number)=>{setSlot(index);onChange(current=>toggleSchemePin(current,index,blocks,{collection,blacklist}));if(cells[index].block)onPick(cells[index].block.id);};
- return view(<div className="scheme-row">
+ return view(<div className="scheme-row" ref={wheel.root}>
+  <SchemeWheelPreview preview={wheel.preview} resources={resources}/>
   <div className="scheme-row-heading">
    <GlassInput className="scheme-name" label="Scheme name" value={scheme.name} onChange={e=>onChange({name:e.target.value})}/>
    <GlassInput className="scheme-length" key={scheme.id+':'+scheme.length} label="Length" type="number" min={3} step={1} defaultValue={scheme.length} onKeyDown={e=>{if(e.key==='Enter')e.currentTarget.blur();}} onBlur={e=>{const length=schemeLength(e.target.value);e.target.value=String(length);if(length!==scheme.length)onChange(current=>resizeScheme(current,length));}}/>
@@ -65,7 +68,7 @@ export function ColourSchemes({blocks,resources,selected,space,categories,collec
  return view(<>
   <GlassPanel id="colour-schemes" className="colour-schemes" style={{zIndex:26}}>
    <div className="scheme-manager-heading"><GlassButton onClick={()=>window.matchMedia('(max-width:760px)').matches?setMobileOpen(true):setExpanded(v=>!v)} aria-expanded={expanded}>Colour schemes</GlassButton><GlassButton aria-label="New colour scheme" onClick={add}><Plus size={14}/><span>New scheme</span></GlassButton></div>
-   {expanded&&schemes.length>0&&<GlassScrollArea className="scheme-desktop-rows" label="Colour schemes" maxHeight="var(--schemes-height)"><div className="scheme-rows">{schemes.map(s=><SchemeRow key={s.id} scheme={s} blocks={blocks} resources={resources} collection={collection} blacklist={blacklist} onChange={update=>change(s.id,update)} onDelete={()=>setSchemes(v=>v.filter(x=>x.id!==s.id))} onSettings={()=>setSettings(s.id)} onExport={()=>setExportId(s.id)} onPick={onPick}/>)}</div><p className="scheme-hint">Click to pin or unpin. Drag to reorder; drag out to remove. Refresh fills unpinned slots.</p></GlassScrollArea>}
+   {expanded&&schemes.length>0&&<GlassScrollArea className="scheme-desktop-rows" label="Colour schemes" maxHeight="var(--schemes-height)"><div className="scheme-rows">{schemes.map(s=><SchemeRow key={s.id} scheme={s} blocks={blocks} resources={resources} collection={collection} blacklist={blacklist} onChange={update=>change(s.id,update)} onDelete={()=>setSchemes(v=>v.filter(x=>x.id!==s.id))} onSettings={()=>setSettings(s.id)} onExport={()=>setExportId(s.id)} onPick={onPick}/>)}</div><p className="scheme-hint">Click to pin or unpin. Drag to reorder; drag out to remove. Refresh fills unpinned slots.</p><p className="scheme-hint">Hover an unpinned interior block and scroll to browse alternatives.</p></GlassScrollArea>}
   </GlassPanel>
   <GlassDialog title="Colour schemes" className="scheme-manager-dialog" open={mobileOpen} onOpenChange={setMobileOpen} closeLabel="Close colour schemes">{selected&&<DraggableBlock id={selected.id} name={selected.name} className="scheme-import"><BlockThumbnail id={selected.id} resources={resources}/><span>{selected.name}<small>Drag selected block into a slot</small></span></DraggableBlock>}<GlassScrollArea label="Colour schemes" maxHeight="55dvh"><div className="scheme-rows">{schemes.map(s=><SchemeRow key={s.id} scheme={s} blocks={blocks} resources={resources} collection={collection} blacklist={blacklist} onChange={update=>change(s.id,update)} onDelete={()=>setSchemes(v=>v.filter(x=>x.id!==s.id))} onSettings={()=>{setMobileOpen(false);setSettings(s.id);}} onExport={()=>{setMobileOpen(false);setExportId(s.id);}} onPick={onPick}/>)}</div><GlassButton onClick={add}>New scheme</GlassButton></GlassScrollArea></GlassDialog>
   <SchemeExport scheme={schemes.find(s=>s.id===exportId)} blocks={blocks} collection={collection} blacklist={blacklist} onClose={()=>{setExportId(null);if(window.matchMedia('(max-width:760px)').matches)setMobileOpen(true);}}/>
