@@ -1,3 +1,4 @@
+import {BlockThumbnail} from './BlockThumbnail';
 import {useEffect,useMemo,useState} from 'react';
 import {GlassPanel,GlassButton,GlassInput,GlassSelect,GlassSwitch,GlassScrollArea,GlassDialog} from '@form-glass/react';
 import {Plus,Settings2,X,Pin,RotateCcw} from 'lucide-react';
@@ -13,11 +14,6 @@ import type {ModelResources} from './useModels';
 interface SchemeFilters {categories:string[];query:string;opaque:boolean;tinted:boolean;list:string;varianceMin:number;varianceMax:number}
 interface Scheme {id:string;name:string;length:number;anchors:Record<number,string>;space:Space;filters:SchemeFilters;ranges:Partial<Record<Space,[number,number]>>}
 
-function SchemeTile({block,resources}:{block:Block|null;resources:ModelResources|null}){
- const [canvas,setCanvas]=useState<HTMLCanvasElement|null>(null);
- useEffect(()=>{if(!canvas||!block||block.previewTile==null||!resources)return;const tile=resources.preview(block.previewTile),ctx=canvas.getContext('2d')!;ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,32,32);ctx.drawImage(tile.image,tile.x,tile.y,tile.size,tile.size,0,0,32,32);},[canvas,block?.previewTile,resources]);
- return block?.previewTile!=null?<canvas ref={setCanvas} width={32} height={32} aria-hidden="true"/>:<span aria-hidden="true">+</span>;
-}
 
 function SchemeRow({scheme,blocks,resources,collection,blacklist,selected,onChange,onDelete,onSettings,onPick}:{scheme:Scheme;blocks:Block[];resources:ModelResources|null;collection:string[];blacklist:string[];selected:Block|undefined;onChange:(s:Scheme)=>void;onDelete:()=>void;onSettings:()=>void;onPick:(id:string)=>void}){
  const {view,t}=useLocale(),[slot,setSlot]=useState(0),[hover,setHover]=useState<number|null>(null);
@@ -29,11 +25,11 @@ function SchemeRow({scheme,blocks,resources,collection,blacklist,selected,onChan
   <div className="scheme-row-heading"><span>{scheme.name}</span><small>{spaces.find(s=>s.value===scheme.space)!.label} · {scheme.length}</small><GlassButton aria-label="Scheme settings" onClick={onSettings}><Settings2 size={13}/></GlassButton><GlassButton aria-label="Delete scheme" onClick={onDelete}><X size={13}/></GlassButton></div>
   <GlassScrollArea label="Scheme blocks" height={78} viewportClassName="scheme-cells-viewport"><div className="scheme-cells">
    {cells.map(cell=><div key={cell.index} className="scheme-cell" data-scheme-id={scheme.id} data-scheme-slot={cell.index} data-anchor={cell.anchor} data-selected={slot===cell.index} data-drop={hover===cell.index} onDragOver={e=>{if(e.dataTransfer.types.includes(schemeMime)||e.dataTransfer.types.includes('text/plain')){e.preventDefault();e.dataTransfer.dropEffect='copy';setHover(cell.index);}}} onDragLeave={()=>setHover(null)} onDrop={e=>{e.preventDefault();setHover(null);const id=e.dataTransfer.getData(schemeMime)||e.dataTransfer.getData('text/plain');if(blocks.some(b=>b.id===id))anchor(cell.index,id);}}>
-    <GlassButton aria-label={`${t('Scheme slot')} ${cell.index+1}: ${cell.id||cell.block?.id||'minecraft:air'}`} title={cell.block?`${cell.block.name} · ${cell.block.id}\n${cell.anchor?t('Control point'):t('Interpolated material')}`:cell.id?`${cell.id} · ${t('Unavailable in this release')}`:t('Drop a block here')} onClick={()=>{setSlot(cell.index);if(cell.block)onPick(cell.block.id);}}><SchemeTile block={cell.block||null} resources={resources}/>{cell.anchor&&<Pin className="scheme-pin" size={9}/>}</GlassButton>
+    <GlassButton aria-label={`${t('Scheme slot')} ${cell.index+1}: ${cell.id||cell.block?.id||'minecraft:air'}`} title={cell.block?`${cell.block.name} · ${cell.block.id}\n${cell.anchor?t('Control point'):t('Interpolated material')}`:cell.id?`${cell.id} · ${t('Unavailable in this release')}`:t('Drop a block here')} onClick={()=>{setSlot(cell.index);if(cell.block)onPick(cell.block.id);}}>{cell.block?<BlockThumbnail id={cell.block.id} resources={resources}/>:<span aria-hidden="true">+</span>}{cell.anchor&&<Pin className="scheme-pin" size={9}/>}</GlassButton>
     <span className="scheme-target" style={{background:cell.target||'transparent'}} title={cell.target||t('No control points')}/>
    </div>)}
   </div></GlassScrollArea>
-  <div className="scheme-row-actions"><GlassButton disabled={!selected} onClick={addSelected}>Add selected block</GlassButton><GlassButton disabled={!scheme.anchors[slot]} onClick={()=>{const anchors={...scheme.anchors};delete anchors[slot];onChange({...scheme,anchors});}}>Remove control point</GlassButton><span>{t('Slot')} {slot+1}</span></div>
+  <div className="scheme-row-actions"><GlassButton disabled={!selected} onClick={addSelected}>Add selected block</GlassButton><GlassButton disabled={!scheme.anchors[slot]} onClick={()=>{const anchors={...scheme.anchors};delete anchors[slot];onChange({...scheme,anchors});}}>Remove control point</GlassButton><span>{t('Slot')} {slot+1}{cells[slot]?.block&&` · ${cells[slot].block.name}`}</span></div>
  </div>);
 }
 

@@ -96,7 +96,7 @@ The controls stay visible. The separate block-library entry and its former top-r
 
 The **Variance range** filter sums the three channel population variances of the **currently selected colour space**. For Oklab this is `Var(L) + Var(a) + Var(b)`; for sRGB it is `Var(R) + Var(G) + Var(B)`. Its label, values and range change with the colour space, with separate bounds remembered for each space during the page session. The filter and variance axes use the same standardized 1,536-pixel material statistics. It works in average-colour and material-variance views, independently of the face selector. Both endpoints are inclusive.
 
-Two identical thin `<|>` handgrips, matching the voxel section slider, share one logarithmic track. The endpoint readouts show actual variance values. Drag and release to apply; arrow keys adjust a handle immediately, Shift uses larger steps, Page Up/Down move farther, and Home/End move to a limit. The handles cannot cross and remain separately reachable when they meet. The reset arrow restores the complete range.
+Two instances of the original FORM `<|>` slider thumb share one logarithmic track, including its curved lobes and velocity-driven deformation. The endpoint readouts show actual variance values. Drag and release to apply; arrow keys adjust a handle, Page Up/Down move farther, and Home/End move to a limit. The handles cannot cross and remain separately reachable when they meet. The reset arrow restores the complete range.
 
 ![Paired section-style variance handgrips](media/screenshots/38-variance-grips.jpg)
 
@@ -104,15 +104,17 @@ Two identical thin `<|>` handgrips, matching the voxel section slider, share one
 
 Use **New scheme** on the lower centre bar. Each horizontal row is one scheme, with its own name, integer length (at least **3**), colour space and filters. New schemes inherit the current geometry selection and colour space, then remain independent of the explorer controls. The selected Minecraft release supplies every scheme's materials.
 
-Drag the selected block's **title or texture thumbnail in the right inspector** into a slot to make a pinned control point. Drop more blocks at any positions to create several interpolation segments. Alternatively, select a slot and use **Add selected block**; **Remove control point** unpins that slot. Clicking a filled slot selects its block in the explorer when it is included in the explorer's filters.
+Drag the selected block's **title or model thumbnail in the right inspector** into a slot to make a pinned control point. A copy of the block and its name follows the pointer, and the destination slot highlights; Escape cancels the drag. Drop more blocks at any positions to create several interpolation segments. Alternatively, select a slot and use **Add selected block**; **Remove control point** unpins that slot. Clicking a filled slot displays its actual block in the inspector, including blocks outside the explorer's filters. The row also shows the selected slot's block name.
 
-Unpinned slots linearly interpolate between neighbouring control points in the scheme's colour space, then match the nearest eligible material in that space. HSV/HSL use the shortest hue arc; HSL bicone interpolates chroma. Outside the outermost control points the endpoint colour is held. The thin swatch below each cell shows the target colour; the thumbnail shows the matched Minecraft material. With no eligible material, an interpolated slot stays empty. Control points retain their exact block IDs even when excluded by that scheme's filters or unavailable in another release.
+Unpinned slots linearly interpolate between neighbouring control points in the scheme's colour space, then match the nearest eligible material in that space. HSV/HSL use the shortest hue arc; HSL bicone interpolates chroma. Outside the outermost control points the endpoint colour is held. The thin swatch below each cell shows the target colour; the thumbnail shows a three-dimensional preview of the matched Minecraft block. Technical blocks such as `minecraft:test_block` retain their original appearance and are identified by name and ID. With no eligible material, an interpolated slot stays empty. Control points retain their exact block IDs even when excluded by that scheme's filters or unavailable in another release.
 
 **Scheme settings** changes the name, length, colour space, geometry categories, search, collection/blacklist choice, variance range, opacity and biome tint inclusion. Variance bounds are remembered separately for each scheme's colour spaces. Resizing distributes control points proportionally across the new integer slots; if several land on one slot, the later point is retained. Rename, remove, collapse or add schemes as needed. Schemes are saved in this browser and survive reloads; collection and blacklist entries remain session-based.
 
 On narrow screens, the lower bar opens the scheme manager in a scrollable glass dialog, keeping the inspector accessible when the dialog is closed. The slot/add button provides the same control-point editing without dragging.
 
 ![Independent colour scheme with pinned endpoints and interpolated blocks](media/screenshots/36-colour-schemes.jpg)
+
+![The dragged block preview follows the pointer](media/screenshots/42-block-drag-preview.jpg)
 
 ![Scheme-specific colour space and filters](media/screenshots/39-scheme-settings.jpg)
 
