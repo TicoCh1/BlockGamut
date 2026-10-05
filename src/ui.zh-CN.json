@@ -327,5 +327,14 @@
   "Drag the selected block into a slot. Pinned slots are control points.": "将选中方块拖入格子。固定格子作为控制点。",
   "These filters choose interpolated materials. Control points keep their original blocks. Each scheme is independent of the explorer filters.": "筛选用于匹配插值材质。控制点保留原方块。每条方案独立于主视图筛选。",
   "Close colour schemes": "关闭配色方案",
-  "Complete bed: original head and foot models.": "完整床：原版床头和床尾模型。"
+  "Complete bed: original head and foot models.": "完整床：原版床头和床尾模型。",
+  "Variance distribution": "方差分布",
+  "blocks": "方块",
+  "Refresh scheme": "刷新方案",
+  "Refresh unpinned blocks": "刷新未固定的方块",
+  "Click to pin or unpin": "点击固定或取消固定",
+  "Drag to reorder; drag out to remove": "拖动调整位置；拖出删除",
+  "Empty slot": "空格",
+  "Click to pin or unpin. Drag to reorder; drag out to remove. Refresh fills unpinned slots.": "点击固定或取消固定。拖动调整位置，拖出删除；刷新补全未固定格子。",
+  "Drag selected block into a slot": "将选中方块拖入格子"
 }

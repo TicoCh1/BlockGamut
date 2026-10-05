@@ -2,6 +2,45 @@ import {filterBlocks,hexRgb,rgbHex,fromLab,encode} from './color.mjs';
 import {coordinates,project,fromHSL,fromHSV,fromXYZ,white} from './spaces.mjs';
 
 export const schemeMime='application/x-block-gamut-block';
+/** Edited slots stay put until refresh; pins retain their exact release IDs. */
+export function schemeCells(scheme,blocks,lists={}){
+ const generated=fillScheme(scheme,blocks,lists);
+ if(!scheme.tiles)return generated;
+ const byId=new Map(blocks.map(b=>[b.id,b]));
+ return generated.map(cell=>{const id=scheme.anchors[cell.index]||scheme.tiles[cell.index],block=byId.get(id)||null;return {...cell,id,block,target:cell.block?.id===id?cell.target:block?.hex||null};});
+}
+export function toggleSchemePin(scheme,index,blocks,lists={}){
+ const cells=schemeCells(scheme,blocks,lists),anchors={...scheme.anchors};
+ if(anchors[index])delete anchors[index];else if(cells[index].id||cells[index].block)anchors[index]=cells[index].id||cells[index].block.id;
+ return {...scheme,anchors,tiles:cells.map(c=>c.id||c.block?.id||null)};
+}
+export function refreshScheme(scheme,blocks,lists={}){
+ const visible=schemeCells(scheme,blocks,lists).filter(c=>c.block);
+ const anchors=Object.keys(scheme.anchors).length?scheme.anchors:Object.fromEntries([visible[0],visible.at(-1)].filter(Boolean).map(c=>[c.index,c.block.id]));
+ return {...scheme,tiles:fillScheme({...scheme,anchors},blocks,lists).map(c=>c.id||c.block?.id||null)};
+}
+export function resizeScheme(scheme,length){
+ const tiles=scheme.tiles?.length?Array.from({length},(_,i)=>scheme.tiles[Math.round(i/(length-1)*(scheme.length-1))]):undefined;
+ return {...scheme,length,tiles,anchors:resizeAnchors(scheme.anchors,scheme.length,length)};
+}
+/** Reorder within a row; move across rows; releasing outside any row deletes.
+ * The configured length stays fixed, so deletion leaves an empty slot. */
+export function dropSchemeBlock(schemes,drop,blocks,lists={}){
+ const source=drop.source&&schemes.find(s=>s.id===drop.source.scheme);
+ if(source&&drop.scheme===source.id){
+  const cells=schemeCells(source,blocks,lists),order=cells.map(c=>({id:c.id||c.block?.id||null,pin:!!source.anchors[c.index]}));
+  const [moved]=order.splice(drop.source.slot,1);order.splice(drop.slot,0,moved);
+  return schemes.map(s=>s.id===source.id?{...s,tiles:order.map(c=>c.id),anchors:Object.fromEntries(order.flatMap((c,i)=>c.pin?[[i,c.id]]:[]))}:s);
+ }
+ const pinned=source?!!source.anchors[drop.source.slot]:false;
+ return schemes.map(s=>{
+  if(s.id!==source?.id&&s.id!==drop.scheme)return s;
+  const tiles=schemeCells(s,blocks,lists).map(c=>c.id||c.block?.id||null),anchors={...s.anchors};
+  if(s.id===source?.id){tiles[drop.source.slot]=null;delete anchors[drop.source.slot];}
+  if(s.id===drop.scheme){tiles[drop.slot]=drop.block;if(pinned)anchors[drop.slot]=drop.block;else delete anchors[drop.slot];}
+  return {...s,tiles,anchors};
+ });
+}
 export function schemeLength(value){return Math.max(3,Math.round(Number(value)));}
 export function resizeAnchors(anchors,oldLength,newLength){
  /** @type {Record<number,string>} */
