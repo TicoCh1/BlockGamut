@@ -1,3 +1,4 @@
+import {VarianceRange} from './VarianceRange';
 import {BlockLoader} from './BlockLoader';
 import {cleanModelGeometry,geometryBounds} from './renderGeometry.mjs';
 import {modelClass,modelClasses} from './modelClass.mjs';
@@ -7,8 +8,8 @@ import {GlassDisclosure} from './GlassDisclosure';
 import chineseNames from './blockNames.zh-CN.json';
 import {useCallback,useDeferredValue,useEffect,useMemo,useRef,useState} from 'react';
 import {Glass,GlassButton,GlassField,GlassProvider,GlassSelect,GlassSwitch,GlassScrollArea} from '@form-glass/react';
-import {Box,Check,ChevronRight,Info,Layers3,RotateCcw,Focus,Search,X} from 'lucide-react';
-import {filterBlocks,groupMaterials,samplesFor} from './color.mjs';
+import {Box,Check,ChevronRight,Info,Layers3,RotateCcw,Focus,Search,X,Ban} from 'lucide-react';
+import {filterBlocks,groupMaterials,samplesFor,materialVariance} from './color.mjs';
 import {Scene} from './Scene';
 import {Turntable} from './Turntable';
 import {useModels} from './useModels';
@@ -18,7 +19,7 @@ import {arrangements,visibleVoxels} from './voxels.mjs';
 import type {Catalog,Block,Sample,Space,Arrangement,VoxelData,VoxelSection} from './types';
 
 const allEdges=['top','right','bottom','left'] as const;
-const categories=[{value:'all',label:'All blocks'},...modelClasses,{value:'collection',label:'My collection'}];
+const categories=[{value:'all',label:'All blocks'},...modelClasses,{value:'collection',label:'My collection'},{value:'blacklist',label:'My blacklist'}];
 const faces=['average','up','north','south','east','west','down'].map(value=>({value,label:({average:'Model average',up:'Top face',down:'Bottom face',north:'North face',south:'South face',east:'East face',west:'West face'} as Record<string,string>)[value]}));
 
 function Texture({block,resources}:{block:Block;resources:import('./useModels').ModelResources|null}){const {t}=useLocale(),canvas=useRef<HTMLCanvasElement>(null);useEffect(()=>{if(block.previewTile==null||!resources||!canvas.current)return;const tile=resources.preview(block.previewTile);const context=canvas.current.getContext('2d')!;context.clearRect(0,0,32,32);context.imageSmoothingEnabled=false;context.drawImage(tile.image,tile.x,tile.y,tile.size,tile.size,0,0,32,32);},[block.previewTile,resources]);return <span className="texture" style={{backgroundColor:block.hex||'#36383d'}}>{block.previewTile!=null?<canvas width={32} height={32} ref={canvas} role="img" aria-label={t(`${block.name} texture preview`)}/>:<Box size={18}/>}</span>;}
@@ -37,7 +38,8 @@ export function App(){
  const [grouped,setGrouped]=useState(true),[focus,setFocus]=useState(0),[assetDetails,setAssetDetails]=useState(false);
  const [category,setCategory]=useState('all'),[query,setQuery]=useState(''),[face,setFace]=useState('average'),[opaque,setOpaque]=useState(false),[tinted,setTinted]=useState(true);
  const [space,setSpace]=useState<Space>('oklab'),[variance,setVariance]=useState(false),[rotate,setRotate]=useState(false),[reset,setReset]=useState(0);
- const [selected,setSelected]=useState('minecraft:orange_terracotta'),[collection,setCollection]=useState<string[]>([]);
+ const [selected,setSelected]=useState('minecraft:orange_terracotta'),[collection,setCollection]=useState<string[]>([]),[blacklist,setBlacklist]=useState<string[]>([]);
+ const [varianceRange,setVarianceRange]=useState<[number,number]>([0,Infinity]);
  const [helpPresent,setHelpPresent]=useState(false);
  const [help,setHelp]=useState(false);
  const modalActive=help||helpPresent;
@@ -55,7 +57,8 @@ export function App(){
  const geometryBlocks=useMemo(()=>(catalog?.blocks||[]).map(b=>({...b,renderBounds:resources?.pack.models[b.id]?.renderable?geometryBounds(cleanModelGeometry(resources.pack.models[b.id],resources.pack.atlas)):undefined,geometryClass:modelClass(resources?.pack.models[b.id],resources?.pack.atlas)})),[catalog,resources]);
  const localizedBlocks=useMemo(()=>geometryBlocks.map(b=>({...b,name:locale==='zh-CN'?b.chineseName||blockName(b.id,b.name):b.name,englishName:b.name,searchNames:b.name+' '+(b.chineseName||(chineseNames as Record<string,string>)[b.id]||'')})),[geometryBlocks,locale]);
  const deferredQuery=useDeferredValue(query);
- const filtered=useMemo(()=>filterBlocks(localizedBlocks,{category:category==='collection'?'all':category,query:deferredQuery,opaque,tinted,custom:category==='collection'?collection:null}) as Block[],[localizedBlocks,category,deferredQuery,opaque,tinted,collection]);
+ const maximumVariance=useMemo(()=>Math.max(...localizedBlocks.map(b=>materialVariance(b)||0)),[localizedBlocks]);
+ const filtered=useMemo(()=>filterBlocks(localizedBlocks,{category:category==='collection'||category==='blacklist'?'all':category,query:deferredQuery,opaque,tinted,custom:category==='collection'?collection:category==='blacklist'?blacklist:null,blacklist:category==='blacklist'?[]:blacklist,varianceMin:varianceRange[0],varianceMax:varianceRange[1]}) as Block[],[localizedBlocks,category,deferredQuery,opaque,tinted,collection,blacklist,varianceRange]);
  const displayed=useMemo(()=>{const result=(grouped?groupMaterials(filtered):filtered) as Block[];
   if(!deferredQuery.trim())return result;const ranks=new Map(filtered.map((b,i)=>[b.id,i]));
   const rank=(b:Block)=>Math.min(...(b.variants||[b]).map(v=>ranks.get(v.id)??Infinity));
@@ -70,7 +73,8 @@ export function App(){
  const copies=useMemo(()=>{if(!grid||!active)return null;let total=0,visible=0;for(const i of grid.indices)if(samples[i]?.block.id===active.id)total++;for(const i of visibleCells)if(samples[grid.indices[i]]?.block.id===active.id)visible++;return {total,visible};},[grid,samples,active?.id,visibleCells]);
  const activeSample=samples.find(s=>s.block.id===active?.id);
  const pick=useCallback((id:string)=>{setSelected(id);},[]);
- const resetFilters=()=>{setCategory('all');setQuery('');setOpaque(false);setTinted(true);setFace('average');};
+ const resetFilters=()=>{setCategory('all');setQuery('');setOpaque(false);setTinted(true);setFace('average');setVarianceRange([0,Infinity]);};
+ const toggleBlacklist=(block:Block)=>{const ids=(block.variants||[block]).map(b=>b.id);setBlacklist(v=>v.includes(block.id)?v.filter(id=>!ids.includes(id)):[...new Set([...v,...ids])]);};
  const reportReady=useCallback(()=>setSceneReady(true),[]),stopOrbit=useCallback(()=>setRotate(false),[]);
  const booting=!catalog||!resources||!sceneReady;
  const bootError=versionError||sceneError;
@@ -94,6 +98,7 @@ export function App(){
      {versionLoading&&<p className="micro muted" role="status">Loading release materials…</p>}
      {versionError&&!booting&&<p className="micro" role="alert">{versionError}</p>}
      <GlassField className="search-field"><Search size={14}/><input aria-label="Search blocks" placeholder="Name, ID or 5:1…" value={query} onChange={e=>setQuery(e.target.value)}/>{query&&<GlassButton fade={allEdges} aria-label="Clear search" onClick={()=>setQuery('')}><X size={13}/></GlassButton>}</GlassField>
+     <VarianceRange value={varianceRange} maximum={maximumVariance} onChange={setVarianceRange}/>
      <div className="palette-counts"><p>{filtered.length.toLocaleString()} blocks · {displayed.length.toLocaleString()} {grouped?'materials':'entries'}</p><p>{modelStats?modelStats.rendered.toLocaleString():'…'} models · {new Set(samples.map(s=>s.hex)).size.toLocaleString()} colours</p><p className="muted">No surface: {displayed.length-samples.length}{face!=='average'?` · ${samples.filter(s=>s.fallback).length} face fallbacks.`:''}</p></div>
      <GlassSwitch label="Group materials" checked={grouped} onChange={setGrouped}/><GlassSelect label="Block geometry" value={category} onChange={setCategory} options={categories}/><GlassSelect label="Colour source" value={face} onChange={setFace} options={faces}/>
 
@@ -105,7 +110,7 @@ export function App(){
     {!samples.length&&<div className="empty-scene">No blocks in this colour set.<br/><GlassButton fade={allEdges} onClick={resetFilters}>Reset filters</GlassButton></div>}
     {active&&<RevealPanel id="block-inspector" open style={{transformOrigin:"bottom right"}} className="block-inspector"><div className="inspector-content"><div className="inspector-heading"><Texture block={active} resources={resources}/><div><span className="eyebrow">SELECTED BLOCK</span><h2>{active.name}</h2></div></div><Turntable id={active.id} name={active.name} resources={resources}/><div className="block-id">{active.id}</div>{copies&&<p className="copy-count">{copies.total.toLocaleString()} instances selected · {copies.visible.toLocaleString()} visible</p>}<div className="asset-path">{active.assetFamily}</div><p className="micro muted">{active.variants?.length||1} block variant{(active.variants?.length||1)>1&&locale==='en'?'s':''} · {active.renderStatus==='native'?'Block model':active.renderStatus==='invisible'?'No visible surface':'Static renderer preview'}</p><GlassButton fade={allEdges} className="disclosure" aria-expanded={assetDetails} aria-controls="asset-disclosure" onClick={()=>setAssetDetails(v=>!v)}><span>Asset files & variants</span><ChevronRight size={13}/></GlassButton><GlassDisclosure id="asset-disclosure" open={assetDetails}><div className="asset-details"><p>{active.blockstate}</p>{active.modelSources.map(path=><p key={path}>{path}</p>)}<p>{active.colorSource}</p><p>{active.renderNote}</p>{active.variants?.map(b=><p key={b.id}>{b.name}</p>)}</div></GlassDisclosure><div className="sample-values"><i style={{background:activeSample?.hex||'#555'}}/><span>{activeSample?.hex||'No colour sample'}</span><span className="muted">{activeSample?.fallback?'average fallback':face}</span></div>{activeSample&&<div className="lab-values" data-variance={variance}>{coordinateLabels(space,variance).map((v,i)=><span key={v}>{v} <b>{(coordinates(activeSample.rgb,space,active.surface,variance)[i]*(v==='H°'?360:1)).toFixed(variance?5:3)}</b></span>)}</div>}
     {active.surface&&<div className="surface-mixture"><div className="mixture-label"><span>SURFACE COLOURS</span><span>area × alpha</span></div><div className="mixture-strip" aria-label="Surface colour proportions">{active.surface.mixture.map((c,i)=><span key={i} style={{background:c.hex,flex:c.weight}} title={`${c.hex} · ${(c.weight*100).toFixed(1)}%`}/>)}</div><div className="mixture-values">{active.surface.mixture.map((c,i)=><span key={i}><i style={{background:c.hex}}/>{Math.round(c.weight*100)}%</span>)}</div></div>}
-    <GlassButton fade={allEdges} className="focus-button" onClick={()=>setFocus(v=>v+1)}><Focus size={13}/> Inspect in 3D</GlassButton><GlassButton fade={allEdges} className="collect-button" onClick={()=>setCollection(v=>v.includes(active.id)?v.filter(id=>id!==active.id):[...v,active.id])}>{collection.includes(active.id)?<Check size={13}/>:<Layers3 size={13}/>} <LocaleLabel text={collection.includes(active.id)?'Remove from collection':'Collect block'} alternatives={['Collect block','Remove from collection']}/></GlassButton></div></RevealPanel>}
+    <GlassButton fade={allEdges} className="focus-button" onClick={()=>setFocus(v=>v+1)}><Focus size={13}/> Inspect in 3D</GlassButton><GlassButton fade={allEdges} className="collect-button" onClick={()=>setCollection(v=>v.includes(active.id)?v.filter(id=>id!==active.id):[...v,active.id])}>{collection.includes(active.id)?<Check size={13}/>:<Layers3 size={13}/>} <LocaleLabel text={collection.includes(active.id)?'Remove from collection':'Collect block'} alternatives={['Collect block','Remove from collection']}/></GlassButton><GlassButton fade={allEdges} className="blacklist-button" onClick={()=>toggleBlacklist(active)}><Ban size={13}/><LocaleLabel text={blacklist.includes(active.id)?'Remove from blacklist':'Blacklist block'} alternatives={['Blacklist block','Remove from blacklist']}/></GlassButton></div></RevealPanel>}
     {!active&&<RevealPanel id="air-inspector" open className="block-inspector air-inspector" style={{transformOrigin:'bottom right'}}><div className="inspector-content"><div className="inspector-heading"><Box size={24}/><div><span className="eyebrow">SELECTED BLOCK</span><h2>Air</h2></div></div><div className="air-symbol" aria-hidden="true">∅</div><div className="block-id">minecraft:air</div><p className="micro muted">No block selected</p></div></RevealPanel>}
 
    </>}

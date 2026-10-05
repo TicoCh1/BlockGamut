@@ -60,6 +60,7 @@ tests/
 AGENTS.md
 README*
 !/README.md
+!/README.zh-CN.md
 DEVELOPMENT*
 __pycache__/
 *.pyc

@@ -1,5 +1,7 @@
 # BlockGamut
 
+English · [简体中文](README.zh-CN.md)
+
 [Open the explorer](https://ticoch1.github.io/BlockGamut/) · [Source](https://github.com/TicoCh1/BlockGamut)
 
 BlockGamut is an interactive Minecraft Java block colour and material atlas. It places textured, native-size block models in three-dimensional colour spaces so builders can compare palettes, find neighbouring materials, inspect texture variation and explore how block appearances changed between releases.
@@ -82,6 +84,14 @@ Search accepts English or Chinese block names, namespaced IDs and legacy numeric
 
 The controls stay visible. The separate block-library entry and its former top-right controls are intentionally hidden.
 
+### Variance range
+
+The **Variance range** filter uses total Oklab population variance, `Var(L) + Var(a) + Var(b)`, from the original whole-model texture pixels. It works in average-colour and material-variance views, independently of the current colour space and face selector. Both endpoints are inclusive.
+
+The two `‹│` / `│›` handles share one logarithmic track. The endpoint readouts show actual variance values. Drag and release to apply; arrow keys adjust a handle immediately, Shift uses larger steps, Page Up/Down move farther, and Home/End move to a limit. The handles cannot cross and remain separately reachable when they meet. The reset arrow restores the complete range.
+
+![Dual-handle variance range filter](media/screenshots/29-variance-range.jpg)
+
 ## Inspect native models and build a collection
 
 The inspector contains a rotating model preview, block ID, source files and variants, sampled colour, coordinates or variances, and a five-colour surface summary. Pause or resume the turntable, and choose **Inspect in 3D** to move the camera close to the selected block.
@@ -94,9 +104,17 @@ Models retain their native dimensions and alpha. Previews include non-cubes, cro
 
 ![Camera focused on a selected block among neighbouring native models](media/screenshots/24-focus-camera.jpg)
 
-Use **Collect block** in the desktop inspector, then select **My collection** in the geometry filter to view your chosen palette. Collections last for the current page session and reset on reload.
+Use **Collect block** in the inspector, then select **My collection** in the geometry filter to view your chosen palette. Collections last for the current page session and reset on reload.
 
 ![A block saved in the current collection](media/screenshots/19-collection.jpg)
+
+### Blacklist
+
+Choose **Blacklist block** in the inspector to hide a block from the normal atlas and from **My collection**. With material grouping enabled, the action includes all variants of the displayed material, so another equivalent variant does not immediately replace it. Entries are excluded before material grouping and combine with the other filters.
+
+Select **My blacklist** in the geometry filter to view excluded blocks. Select one and choose **Remove from blacklist** to restore it. Search and variance filters still apply in this view; use **Reset filters** if the current combination hides an entry. Resetting filters does not clear the blacklist. Like the collection, the blacklist lasts for the current page session and resets on reload.
+
+![Blacklisted material with its restore action](media/screenshots/28-blacklist.jpg)
 
 ## Camera, language and layout
 
