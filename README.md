@@ -76,9 +76,11 @@ Switching a release changes its available blocks, original textures, models, col
 
 ![The earliest material group with original textures](media/screenshots/16-old-release.jpg)
 
-**Group materials** merges identical resolved texture sets and tints, preferring a full cube when available. Similar colours alone do not merge blocks. Disable grouping to include individual variants. Geometry filters cover full cubes, flat planes, entity/oversized previews and other models. **Colour source** can use the model average or any of its six faces.
+**Group materials** merges identical resolved texture sets and tints, preferring a full cube when available. Similar colours alone do not merge blocks. Disable grouping to include individual variants. Block geometry is a multi-select filter: Full cubes, Transparent cubes, Flat planes, Entity, Oversized, Sets and Other. Selected categories form a union; clearing them shows no blocks. Glass and other cubes with transparent surfaces are separated from solid Full cubes. Multipart mushroom shells remain full cubes. Beds include both original head and foot models and belong to Oversized. Sets is a subset of solid Full cubes with a matching slab/stair family in the selected release, including wood planks/logs and stone-brick families. **Colour source** can use the model average or any of its six faces.
 
-![Combined geometry, top-face and opacity filters with grouping disabled](media/screenshots/17-filters.jpg)
+![Seven geometry categories selected independently](media/screenshots/37-multiselect.jpg)
+
+![Complete bed with original head, foot and two-block footprint](media/screenshots/41-complete-bed.jpg)
 
 ### Search, selection and empty results
 
@@ -94,9 +96,25 @@ The controls stay visible. The separate block-library entry and its former top-r
 
 The **Variance range** filter sums the three channel population variances of the **currently selected colour space**. For Oklab this is `Var(L) + Var(a) + Var(b)`; for sRGB it is `Var(R) + Var(G) + Var(B)`. Its label, values and range change with the colour space, with separate bounds remembered for each space during the page session. The filter and variance axes use the same standardized 1,536-pixel material statistics. It works in average-colour and material-variance views, independently of the face selector. Both endpoints are inclusive.
 
-The two `‹│` / `│›` handles share one logarithmic track. The endpoint readouts show actual variance values. Drag and release to apply; arrow keys adjust a handle immediately, Shift uses larger steps, Page Up/Down move farther, and Home/End move to a limit. The handles cannot cross and remain separately reachable when they meet. The reset arrow restores the complete range.
+Two identical thin `<|>` handgrips, matching the voxel section slider, share one logarithmic track. The endpoint readouts show actual variance values. Drag and release to apply; arrow keys adjust a handle immediately, Shift uses larger steps, Page Up/Down move farther, and Home/End move to a limit. The handles cannot cross and remain separately reachable when they meet. The reset arrow restores the complete range.
 
-![Dual-handle variance range filter](media/screenshots/29-variance-range.jpg)
+![Paired section-style variance handgrips](media/screenshots/38-variance-grips.jpg)
+
+## Manage colour schemes
+
+Use **New scheme** on the lower centre bar. Each horizontal row is one scheme, with its own name, integer length (at least **3**), colour space and filters. New schemes inherit the current geometry selection and colour space, then remain independent of the explorer controls. The selected Minecraft release supplies every scheme's materials.
+
+Drag the selected block's **title or texture thumbnail in the right inspector** into a slot to make a pinned control point. Drop more blocks at any positions to create several interpolation segments. Alternatively, select a slot and use **Add selected block**; **Remove control point** unpins that slot. Clicking a filled slot selects its block in the explorer when it is included in the explorer's filters.
+
+Unpinned slots linearly interpolate between neighbouring control points in the scheme's colour space, then match the nearest eligible material in that space. HSV/HSL use the shortest hue arc; HSL bicone interpolates chroma. Outside the outermost control points the endpoint colour is held. The thin swatch below each cell shows the target colour; the thumbnail shows the matched Minecraft material. With no eligible material, an interpolated slot stays empty. Control points retain their exact block IDs even when excluded by that scheme's filters or unavailable in another release.
+
+**Scheme settings** changes the name, length, colour space, geometry categories, search, collection/blacklist choice, variance range, opacity and biome tint inclusion. Variance bounds are remembered separately for each scheme's colour spaces. Resizing distributes control points proportionally across the new integer slots; if several land on one slot, the later point is retained. Rename, remove, collapse or add schemes as needed. Schemes are saved in this browser and survive reloads; collection and blacklist entries remain session-based.
+
+On narrow screens, the lower bar opens the scheme manager in a scrollable glass dialog, keeping the inspector accessible when the dialog is closed. The slot/add button provides the same control-point editing without dragging.
+
+![Independent colour scheme with pinned endpoints and interpolated blocks](media/screenshots/36-colour-schemes.jpg)
+
+![Scheme-specific colour space and filters](media/screenshots/39-scheme-settings.jpg)
 
 ## Inspect native models and build a collection
 
@@ -110,7 +128,7 @@ Models retain their native dimensions and alpha. Previews include non-cubes, cro
 
 ![Camera focused on a selected block among neighbouring native models](media/screenshots/24-focus-camera.jpg)
 
-Use **Collect block** in the inspector, then select **My collection** in the geometry filter to view your chosen palette. Collections last for the current page session and reset on reload.
+Use **Collect block** in the inspector, then select **My collection** in the Block list filter to view your chosen palette. Collections last for the current page session and reset on reload.
 
 ![A block saved in the current collection](media/screenshots/19-collection.jpg)
 
@@ -118,7 +136,7 @@ Use **Collect block** in the inspector, then select **My collection** in the geo
 
 Choose **Blacklist block** in the inspector to hide a block from the normal atlas and from **My collection**. With material grouping enabled, the action includes all variants of the displayed material, so another equivalent variant does not immediately replace it. Entries are excluded before material grouping and combine with the other filters.
 
-Select **My blacklist** in the geometry filter to view excluded blocks. Select one and choose **Remove from blacklist** to restore it. Search and variance filters still apply in this view; use **Reset filters** if the current combination hides an entry. Resetting filters does not clear the blacklist. Like the collection, the blacklist lasts for the current page session and resets on reload.
+Select **My blacklist** in the Block list filter to view excluded blocks. Select one and choose **Remove from blacklist** to restore it. Search and variance filters still apply in this view; use **Reset filters** if the current combination hides an entry. Resetting filters does not clear the blacklist. Like the collection, the blacklist lasts for the current page session and resets on reload.
 
 ![Blacklisted material with its restore action](media/screenshots/28-blacklist.jpg)
 
@@ -132,11 +150,11 @@ Panels adapt to the viewport and reserve space for their feathered edges. Longer
 | --- | --- |
 | ![Simplified Chinese interface](media/screenshots/34-glass-chinese.jpg) | ![Built-in data and method notes](media/screenshots/35-glass-about.jpg) |
 
-<img src="media/screenshots/33-glass-mobile.jpg" alt="Compact layout with bounded controls and inspector" width="360">
+<img src="media/screenshots/40-schemes-mobile.jpg" alt="Compact layout with bounded controls and inspector" width="360">
 
 ## Data and limitations
 
-Release assets are incremental: original texture pixels are stored once in a shared atlas, and each material group records changed catalog entries, models and animation metadata against its predecessor. The bundled version assets contain 3,569 unique texture tiles in seven atlas pages. Unchanged releases do not carry a complete copy of the textures. The runtime caches reconstructed release data.
+Release assets are incremental: original texture pixels are stored once in a shared atlas, and each material group records changed catalog entries, models and animation metadata against its predecessor. The bundled version assets contain 3,602 unique texture tiles in eight atlas pages. Unchanged releases do not carry a complete copy of the textures. The runtime caches reconstructed release data.
 
 Colour and variance statistics describe the source texture pixels rather than in-game lighting. The five-colour summary is only a visual summary, not the input to variance calculations. One representative placed state is shown per block. Special renderers use closed/rest poses, default skins and plain banners or pots. World lighting, particles, moving block entities and custom block data are not reproduced. Invisible blocks remain in the catalog without invented surface colours; air types and item frames are excluded from the placed-block atlas.
 

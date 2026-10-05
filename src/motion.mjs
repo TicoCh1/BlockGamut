@@ -51,7 +51,7 @@ export function planMotion(start,goal){return {start,goal,tracks:start.map((p,i)
 export function motionAt(plan,progress){const t=Math.max(0,Math.min(1,progress));return plan.tracks.map(route=>at(route,t));}
 function fragment(snapshot,i){
  const block=snapshot.samples[snapshot.grid.indices[i]].block;
- if(snapshot.grid.mode!=='dense'||block.geometryClass==='cube')return 'native';
+ if(snapshot.grid.mode!=='dense'||['cube','transparent'].includes(block.geometryClass))return 'native';
  const span=(block.renderBounds?.size||[1,1,1]).map(v=>Math.max(1,Math.ceil(v-1e-6)));
  return 'tile:'+snapshot.grid.cells[i].map((v,a)=>((v%span[a])+span[a])%span[a]).join(',');
 }

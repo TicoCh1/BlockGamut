@@ -9,7 +9,7 @@ import type {ModelResources} from './useModels';
 /** Native cutout batches plus one globally triangle-sorted translucent surface. */
 export function createVoxelField(resources:ModelResources,samples:Sample[],data:VoxelData,dynamicSection=false,moving=false){
  const mesh=new T.Group(),matrix=new T.Matrix4(),size=BLOCK_EDGE,fade={value:1};
- const info=samples.map(s=>{const model=resources.pack.models[s.block.id],g=cleanModelGeometry(model,resources.pack.atlas);return {g,bounds:geometryBounds(g),span:modelSpan(g),cube:modelClass(model,resources.pack.atlas)==='cube',opaque:!!model.opaqueSurface,joinSame:model.renderLayer==='TRANSLUCENT'||s.block.id==='minecraft:glass',transparent:model.renderLayer==='TRANSLUCENT',portal:/^minecraft:end_(portal|gateway)$/.test(s.block.id)?1:0};});
+ const info=samples.map(s=>{const model=resources.pack.models[s.block.id],g=cleanModelGeometry(model,resources.pack.atlas);return {g,bounds:geometryBounds(g),span:modelSpan(g),cube:['cube','transparent'].includes(modelClass(model,resources.pack.atlas)),opaque:!!model.opaqueSurface,joinSame:model.renderLayer==='TRANSLUCENT'||s.block.id==='minecraft:glass',transparent:model.renderLayer==='TRANSLUCENT',portal:/^minecraft:end_(portal|gateway)$/.test(s.block.id)?1:0};});
  const cube=new T.BoxGeometry(1,1,1),edges=new T.EdgesGeometry(cube),outlineGeometry=new T.InstancedBufferGeometry();
  outlineGeometry.setAttribute('position',edges.attributes.position.clone());cube.dispose();edges.dispose();
  const offsets=new T.InstancedBufferAttribute(new Float32Array(Math.max(1,data.cells.length)*3),3),extents=offsets.clone();outlineGeometry.setAttribute('offset',offsets);outlineGeometry.setAttribute('extent',extents);outlineGeometry.instanceCount=0;

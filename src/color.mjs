@@ -31,9 +31,9 @@ export function materialVariance(block,space='oklab') {
  const channels=block.surface?.channelVariance?.[space]||(space==='oklab'?block.surface?.variance:null);
  return channels?channels.reduce((sum,value)=>sum+value,0):null;
 }
-/** @param {any[]} blocks @param {{category?:string,query?:string,opaque?:boolean,tinted?:boolean,custom?:string[]|null,blacklist?:string[],varianceMin?:number,varianceMax?:number,space?:string}} filters */
-export function filterBlocks(blocks, {category='all',query='',opaque=false,tinted=true,custom=null,blacklist=[],varianceMin=0,varianceMax=Infinity,space='oklab'}) {
- return searchBlocks(blocks,query).filter(b=>(category==='all'||(category==='cubes'?b.category.startsWith('full_cube'):(b.geometryClass||b.category)===category))
+/** @param {any[]} blocks @param {{categories?:string[],category?:string,query?:string,opaque?:boolean,tinted?:boolean,custom?:string[]|null,blacklist?:string[],varianceMin?:number,varianceMax?:number,space?:string}} filters */
+export function filterBlocks(blocks, {categories,category='all',query='',opaque=false,tinted=true,custom=null,blacklist=[],varianceMin=0,varianceMax=Infinity,space='oklab'}) {
+ return searchBlocks(blocks,query).filter(b=>(categories?categories.includes(b.geometryClass)||categories.includes('sets')&&b.inSet:category==='all'||(category==='cubes'?b.category.startsWith('full_cube'):(b.geometryClass||b.category)===category))
     && (!opaque||(b.alpha!==null&&b.alpha>=.999)) && (tinted||b.tint==='none')
     && (!custom||custom.includes(b.id)) && !blacklist.includes(b.id)
     && ((varianceMin===0&&varianceMax===Infinity)||(materialVariance(b,space)!==null&&materialVariance(b,space)>=varianceMin&&materialVariance(b,space)<=varianceMax)));
@@ -52,7 +52,7 @@ const cakeVariants=new Set(['cake','candle_cake',...['white','orange','magenta',
 export function groupMaterials(blocks) {
   const groups=new Map();
   for(const block of blocks){const key=cakeVariants.has(block.id)?'family:minecraft:cake':block.materialKey||block.id;const members=groups.get(key)||[];members.push(block);groups.set(key,members);}
-  const rank=b=>[b.id==='minecraft:cake'?-1:(b.geometryClass==='cube'||b.category.startsWith('full_cube'))?0:1,b.id.length];
+  const rank=b=>[b.id==='minecraft:cake'?-1:(['cube','transparent'].includes(b.geometryClass)||b.category.startsWith('full_cube'))?0:1,b.id.length];
   return [...groups.values()].map(members=>{
     const sorted=[...members].sort((a,b)=>rank(a)[0]-rank(b)[0]||rank(a)[1]-rank(b)[1]||a.id.localeCompare(b.id));
     return {...sorted[0],variants:sorted};
