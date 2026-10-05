@@ -20,11 +20,10 @@
 !/licenses/
 !/scripts/
 /scripts/*
-!/scripts/glass-geometry.mjs
 !/scripts/serve.mjs
 !/vendor/
 /vendor/*
-!/vendor/form-glass-react-0.1.0-runtime.tgz
+!/vendor/form-glass-react-0.3.1-runtime.tgz
 !/.github/
 /.github/*
 !/.github/workflows/

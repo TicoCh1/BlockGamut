@@ -14,8 +14,7 @@ licenses remain applicable. Minecraft textures, models and related assets © Moj
   Apache-2.0. The upstream notice and license remain in the component archive
   under `licenses/urbanfabric-Apache-2.0.txt`. The component archive retains its
   original licensing; the application's GPL grant does not change those terms.
-  The website's geometry adapter is covered by the project's GPL-3.0-or-later
-  license. Development documentation, source maps and examples are omitted.
+  Development documentation, source maps and examples are omitted.
 - React and ReactDOM: MIT; Three.js: MIT; Lucide: ISC. License texts are
   included in `licenses/` and retained by their installed npm packages.
 - Fuse.js 7.1.0 by Kiro Risk: Apache-2.0. See `licenses/FUSE.txt` and

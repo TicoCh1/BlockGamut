@@ -48,7 +48,7 @@ export function useLocale(){
   const element=node as ReactElement<any>,props={...element.props};
   if(element.type===LocaleLabel)return element;
   const button=inButton||element.type===GlassButton||element.type==='button';
-  for(const key of ['label','aria-label','placeholder','title'])if(typeof props[key]==='string')props[key]=t(props[key]);
+  for(const key of ['label','aria-label','placeholder','title','closeLabel'])if(typeof props[key]==='string')props[key]=t(props[key]);
   if(element.type===GlassSwitch){props.ariaLabel=t(element.props.ariaLabel||element.props.label);props.label=<LocaleLabel text={element.props.label}/>;}
   if(Array.isArray(props.options))props.options=props.options.map((option:any)=>({...option,label:t(option.label),...(element.type===GlassSelect?{displayLabel:<LocaleLabel text={option.label}/>}:{})}));
   if(props.children!==undefined)props.children=Children.map(props.children,child=>view(child,button));

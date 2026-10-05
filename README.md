@@ -10,7 +10,7 @@ It runs entirely in the browser. No Minecraft installation, account, backend or 
 
 Created by [TicoCh1](https://github.com/TicoCh1). Minecraft textures © Mojang / Microsoft.
 
-![BlockGamut overview with the complete control panel and block inspector](media/screenshots/01-overview.jpg)
+![BlockGamut overview with feathered glass controls and the block inspector](media/screenshots/31-glass-ui.jpg)
 
 ## Explore eight colour spaces
 
@@ -18,7 +18,7 @@ Choose **Coordinate space** to compare perceptual lightness, RGB channels or hue
 
 | Oklab | sRGB |
 | --- | --- |
-| ![Oklab](media/screenshots/01-overview.jpg) | ![sRGB](media/screenshots/02-srgb.jpg) |
+| ![Oklab](media/screenshots/31-glass-ui.jpg) | ![sRGB](media/screenshots/02-srgb.jpg) |
 | **Linear RGB** | **HSV** |
 | ![Linear RGB](media/screenshots/03-linear-rgb.jpg) | ![HSV](media/screenshots/04-hsv.jpg) |
 | **HSL cylinder** | **HSL bicone** |
@@ -48,7 +48,7 @@ Changes use simultaneous Manhattan movement. Dense transitions move representati
 
 | Spaced | Packed | Dense fill |
 | --- | --- | --- |
-| ![Spaced native models](media/screenshots/09-spaced.jpg) | ![Packed native models](media/screenshots/01-overview.jpg) | ![Dense material fill](media/screenshots/10-dense.jpg) |
+| ![Spaced native models](media/screenshots/09-spaced.jpg) | ![Packed native models](media/screenshots/31-glass-ui.jpg) | ![Dense material fill](media/screenshots/10-dense.jpg) |
 
 Collision handling can move blocks away from their exact mathematical colour coordinates. Use the inspector for precise numerical comparisons.
 
@@ -60,7 +60,7 @@ Drag the window by its header, or focus the drag handle and use arrow keys; Shif
 
 | Cutaway volume | Reversed side |
 | --- | --- |
-| ![Cutaway volume and textured slice](media/screenshots/12-cutaway.jpg) | ![Reversed cutaway volume](media/screenshots/12b-reversed.jpg) |
+| ![Cutaway volume and textured slice](media/screenshots/32-glass-section.jpg) | ![Reversed cutaway volume](media/screenshots/12b-reversed.jpg) |
 | **Single voxel layer** | **Hue-angle section** |
 | ![Single voxel layer](media/screenshots/13-layer.jpg) | ![Hue-angle section](media/screenshots/14-hue-section.jpg) |
 
@@ -126,13 +126,13 @@ Select **My blacklist** in the geometry filter to view excluded blocks. Select o
 
 Drag the scene to orbit, scroll to zoom, enable automatic **Orbit**, or use **Reset camera** to return to the overview. The language selector switches between English and Simplified Chinese and remembers the selection on that browser.
 
-Panels adapt to the viewport. Longer content scrolls inside its panel; the glass shell and its decorative edges do not act as the content scrollport. The information button opens the built-in explanation of the data and methods.
+Panels adapt to the viewport and reserve space for their feathered edges. Longer content uses themed scrollbars inside each panel. Dropdowns, resource disclosures and the information dialog share the same glass material and sequential disappear → shell motion → appear transitions. The section window supports pointer dragging and arrow-key movement, stays within the viewport and preserves live section preview while its position slider is dragged. Escape closes the information dialog and returns focus to its trigger.
 
 | Simplified Chinese | Data and method notes |
 | --- | --- |
-| ![Simplified Chinese interface](media/screenshots/22-chinese.jpg) | ![Built-in data and method notes](media/screenshots/23-about.jpg) |
+| ![Simplified Chinese interface](media/screenshots/34-glass-chinese.jpg) | ![Built-in data and method notes](media/screenshots/35-glass-about.jpg) |
 
-<img src="media/screenshots/26-mobile.jpg" alt="Compact layout with bounded controls and inspector" width="360">
+<img src="media/screenshots/33-glass-mobile.jpg" alt="Compact layout with bounded controls and inspector" width="360">
 
 ## Data and limitations
 

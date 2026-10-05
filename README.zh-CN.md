@@ -10,7 +10,7 @@ BlockGamut 是 Minecraft Java 版方块的三维色彩与材质探索器。它�
 
 项目作者：[TicoCh1](https://github.com/TicoCh1)。Minecraft 材质 © Mojang / Microsoft。
 
-![方块色彩探索器总览](media/screenshots/01-overview.jpg)
+![方块色彩探索器总览](media/screenshots/31-glass-ui.jpg)
 
 ## 八种色彩空间
 
@@ -18,7 +18,7 @@ BlockGamut 是 Minecraft Java 版方块的三维色彩与材质探索器。它�
 
 | Oklab | sRGB |
 | --- | --- |
-| ![Oklab](media/screenshots/01-overview.jpg) | ![sRGB](media/screenshots/02-srgb.jpg) |
+| ![Oklab](media/screenshots/31-glass-ui.jpg) | ![sRGB](media/screenshots/02-srgb.jpg) |
 | **线性 RGB** | **HSV** |
 | ![线性 RGB](media/screenshots/03-linear-rgb.jpg) | ![HSV](media/screenshots/04-hsv.jpg) |
 | **HSL 圆柱** | **HSL 双锥** |
@@ -48,7 +48,7 @@ BlockGamut 是 Minecraft Java 版方块的三维色彩与材质探索器。它�
 
 | 间隔 | 无间隙 | 密铺 |
 | --- | --- | --- |
-| ![间隔模型](media/screenshots/09-spaced.jpg) | ![无间隙模型](media/screenshots/01-overview.jpg) | ![密铺](media/screenshots/10-dense.jpg) |
+| ![间隔模型](media/screenshots/09-spaced.jpg) | ![无间隙模型](media/screenshots/31-glass-ui.jpg) | ![密铺](media/screenshots/10-dense.jpg) |
 
 碰撞避让可能让模型偏离精确的数学颜色坐标。需要准确比较时，请使用检查器中的数值。
 
@@ -60,7 +60,7 @@ BlockGamut 是 Minecraft Java 版方块的三维色彩与材质探索器。它�
 
 | 体积切面 | 反转保留方向 |
 | --- | --- |
-| ![体积切面和纹理切片](media/screenshots/12-cutaway.jpg) | ![反转切面](media/screenshots/12b-reversed.jpg) |
+| ![体积切面和纹理切片](media/screenshots/32-glass-section.jpg) | ![反转切面](media/screenshots/12b-reversed.jpg) |
 | **单层格子** | **色相角切面** |
 | ![单层](media/screenshots/13-layer.jpg) | ![色相切面](media/screenshots/14-hue-section.jpg) |
 
@@ -126,13 +126,13 @@ BlockGamut 是 Minecraft Java 版方块的三维色彩与材质探索器。它�
 
 拖动场景旋转视角，滚轮缩放；开启“自动旋转”让场景持续转动，或点击“重置相机”返回总览。语言选择器支持英语和简体中文，并记住该浏览器上的语言选择。
 
-面板根据视口调整。长内容在面板内部滚动，玻璃外框与装饰边缘不承担内容滚动。信息按钮提供内置的数据与方法说明。
+面板随视口调整，并为玻璃淡出外缘预留空间。长内容通过面板内部的主题滚动条浏览。下拉菜单、资源折叠区与说明弹窗采用一致的玻璃材质，按“内容消失 → 外框变化 → 内容出现”的顺序过渡。切面窗口支持鼠标拖动和方向键移动，位置限制在视口内；拖动切面位置滑杆时，三维预览仍实时更新。Escape 关闭说明弹窗，并把焦点返回触发按钮。
 
 | 简体中文界面 | 数据与方法说明 |
 | --- | --- |
-| ![简体中文界面](media/screenshots/22-chinese.jpg) | ![内置说明](media/screenshots/23-about.jpg) |
+| ![简体中文界面](media/screenshots/34-glass-chinese.jpg) | ![内置说明](media/screenshots/35-glass-about.jpg) |
 
-<img src="media/screenshots/26-mobile.jpg" alt="手机布局中的控制面板和检查器" width="360">
+<img src="media/screenshots/33-glass-mobile.jpg" alt="手机布局中的控制面板和检查器" width="360">
 
 ## 资源结构与限制
 

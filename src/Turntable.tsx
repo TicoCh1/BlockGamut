@@ -20,5 +20,5 @@ export function Turntable({id,name,resources}:{id:string;name:string;resources:M
   return()=>{cancelAnimationFrame(frame);resize.disconnect();geometry.dispose();material.dispose();renderer.dispose();renderer.domElement.remove();};
  },[id,name,resources,locale]);
  const visible=resources?.pack.models[id]?.renderable;
- return view(<div className="turntable"><div className="turntable-viewport" ref={host}>{(!visible||error)&&<span>{error?'Preview unavailable':resources?'No visible surface':'Loading preview…'}</span>}</div><div className="turntable-caption"><span>TURNTABLE · 360°</span>{visible&&<GlassButton fade={['top','right','bottom','left']} aria-label={paused?'Play turntable':'Pause turntable'} aria-pressed={!paused} onClick={()=>setPaused(v=>!v)}><LocaleLabel text={paused?'Play':'Pause'} alternatives={['Play','Pause']}/></GlassButton>}</div></div>);
+ return view(<div className="turntable"><div className="turntable-viewport" ref={host}>{(!visible||error)&&<span>{error?'Preview unavailable':resources?'No visible surface':'Loading preview…'}</span>}</div><div className="turntable-caption"><span>TURNTABLE · 360°</span>{visible&&<GlassButton aria-label={paused?'Play turntable':'Pause turntable'} aria-pressed={!paused} onClick={()=>setPaused(v=>!v)}><LocaleLabel text={paused?'Play':'Pause'} alternatives={['Play','Pause']}/></GlassButton>}</div></div>);
 }

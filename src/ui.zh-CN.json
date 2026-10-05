@@ -6,7 +6,7 @@
   "Toggle block library": "打开或收起方块库",
   "Blocks": "方块",
   "About the data and method": "数据与方法说明",
-  "Explorer controls": "探索器控制",
+  "Explorer controls": "色域控制",
   "Language": "语言",
   "COLOUR SPACE": "色彩空间",
   "Coordinate space": "坐标空间",
@@ -194,7 +194,6 @@
   "Material variance is the Oklab population covariance of original unlit face texels, weighted by face area and alpha. Invisible pixels contribute nothing; declared internal faces also count. The colour strip shows five weighted colour clusters. This uses the whole representative model, including both halves of a rose bush, independently of the face-colour selector. Variance axes are linear: full scale 0.02 for a, 0.12 for L and 0.02 for b; larger values are not clipped.": "材质方差是原始、未受光照影响的纹理像素在 Oklab 中的总体协方差，按面面积和透明度加权。不可见像素不参与；模型声明的内部面仍参与。颜色条显示五个加权颜色簇。统计覆盖整个模型，包括高植物的上下半部，不受颜色来源选项影响。方差坐标满幅对应 a 为 0.02、L 为 0.12、b 为 0.02，较大值不截断。",
   "One representative placed state is shown. Special renderers use closed/rest poses, default player skins and plain banners/pots. Fluid and portal previews are static. World lighting, neighbour simulation, custom block-entity data and animations are not reproduced.": "每种方块展示一个代表放置状态。特殊渲染器使用闭合／静止姿态、默认皮肤和普通旗帜／陶罐。流体与传送门使用静态预览，不模拟世界光照、邻接状态和自定义方块实体数据。",
   "The optional sRGB wireframe is a sampled display boundary. A convex envelope does not imply continuous available materials.": "可选的 sRGB 线框表示采样色域边界。凸包包络不表示内部所有颜色都存在对应材质。",
-  "Layout references ShapeOfColour. All glass controls use the supplied FORM Glass 0.1.0 package. ": "布局参考 ShapeOfColour。玻璃控件使用提供的 FORM Glass 0.1.0 组件包。",
   "1 · Full 1×1×1 cubes": "1 · 完整 1×1×1 立方体",
   "2 · Zero-thickness planes": "2 · 无厚度面片",
   "3 · Entity-rendered / oversized": "3 · 实体渲染／超出一格",
@@ -218,7 +217,7 @@
   "Animated layered end-portal preview; world fog and particles are omitted.": "动态分层末地传送门预览，不包含世界雾效和粒子。",
   "Drag section window": "移动切面窗口",
   "Close voxel section": "关闭体素切片",
-  "Voxel section controls": "体素切片控制",
+  "Voxel section controls": "像素切面控制",
   "Live 3D while dragging": "拖动时实时更新三维视图",
   "2D live · 3D updates on release": "二维实时预览 · 松手更新三维",
   "Section position value": "切片位置数值",
@@ -286,5 +285,7 @@
   "Maximum variance": "最大方差",
   "Reset variance range": "重置方差范围",
   "Colours use the selected release’s original textures, weighted by face area and transparency. Variance uses six standardized 16×16 material planes. Eight colour spaces include Oklab, sRGB, linear RGB, HSV, HSL cylinder/bicone, XYZ D65 and CIELAB D65. Original numerical colour values and native model dimensions are preserved: beds and banners can extend across multiple blocks.": "颜色使用所选版本的原始纹理，按面面积和透明度加权。方差使用六个标准化的 16×16 材质面。支持 Oklab、sRGB、线性 RGB、HSV、HSL 圆柱／双锥、XYZ D65 和 CIELAB D65 八种色彩空间。原有颜色数值和模型尺寸保持不变，床和旗帜仍可跨越多个方块。",
-  "Material variance uses 1536 texels: six 16×16 material planes from the original unlit UV regions. Small regions repeat; large regions box-downsample. Unique regions in each direction share one plane; missing directions repeat available material planes. Face area and repeated geometry do not increase their statistical weight. Transparent texels contribute no colour weight except for stained glass and panes: their variance uses colours source-over composited against a pure-white reference background #FFFFFF, with equal weights for all resulting pixels. This includes visible opacity patterns even when texture RGB is uniform. Each axis shows the current colour space’s channel variance. The range filter sums those three variances and remembers separate bounds for each space, independently of the face-colour selector. HSV/HSL hue uses minimum mean squared shortest-arc distance in turns squared, excluding achromatic texels; HSL bicone uses chroma variance. Fixed logarithmic scales include zero. Inspector variances stay unscaled; the five colour clusters only summarize the original surface colours.": "材质方差统一使用 1536 个像素：从原始未打光的 UV 区域生成六个 16×16 材质面。小区域循环补齐，大区域使用 BOX 降采样；同方向的不同区域合并到一个材质面，缺少的方向循环使用已有材质面。面面积和重复几何不再增加统计权重，普通材质的透明像素不贡献颜色权重；彩色玻璃及玻璃板则先与纯白参考背景 #FFFFFF 做透明度合成，合成后的像素等权参与，因此贴图 RGB 一致时也能统计透明度图案造成的可见差异。每个轴显示当前色域对应通道的方差，范围筛选使用三个通道方差之和，并分别记住各色域的范围，不受颜色来源选择影响。HSV/HSL 的色相采用最短圆弧距离平方均值的最小值，单位为圈²，无色像素不参与；HSL 双锥使用色度方差。固定对数坐标包含零值，检查器保留原始方差读数；五种代表颜色仅概括原始表面颜色。"
+  "Material variance uses 1536 texels: six 16×16 material planes from the original unlit UV regions. Small regions repeat; large regions box-downsample. Unique regions in each direction share one plane; missing directions repeat available material planes. Face area and repeated geometry do not increase their statistical weight. Transparent texels contribute no colour weight except for stained glass and panes: their variance uses colours source-over composited against a pure-white reference background #FFFFFF, with equal weights for all resulting pixels. This includes visible opacity patterns even when texture RGB is uniform. Each axis shows the current colour space’s channel variance. The range filter sums those three variances and remembers separate bounds for each space, independently of the face-colour selector. HSV/HSL hue uses minimum mean squared shortest-arc distance in turns squared, excluding achromatic texels; HSL bicone uses chroma variance. Fixed logarithmic scales include zero. Inspector variances stay unscaled; the five colour clusters only summarize the original surface colours.": "材质方差统一使用 1536 个像素：从原始未打光的 UV 区域生成六个 16×16 材质面。小区域循环补齐，大区域使用 BOX 降采样；同方向的不同区域合并到一个材质面，缺少的方向循环使用已有材质面。面面积和重复几何不再增加统计权重，普通材质的透明像素不贡献颜色权重；彩色玻璃及玻璃板则先与纯白参考背景 #FFFFFF 做透明度合成，合成后的像素等权参与，因此贴图 RGB 一致时也能统计透明度图案造成的可见差异。每个轴显示当前色域对应通道的方差，范围筛选使用三个通道方差之和，并分别记住各色域的范围，不受颜色来源选择影响。HSV/HSL 的色相采用最短圆弧距离平方均值的最小值，单位为圈²，无色像素不参与；HSL 双锥使用色度方差。固定对数坐标包含零值，检查器保留原始方差读数；五种代表颜色仅概括原始表面颜色。",
+  "Move section": "移动切面",
+  "Selected block details": "选中方块详情"
 }
