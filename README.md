@@ -32,9 +32,11 @@ Enable **Material variance** in any colour space to compare texture variation in
 
 ![Material variance arranged on logarithmic axes](media/screenshots/11-variance.jpg)
 
-Stained glass and stained-glass panes use **source-over composited colours against the explorer's dark reference background, `#1B1E23`**, before calculating variance. Every resulting pixel has equal weight, including the background visible through transparent pixels. This captures opacity patterns even when the original texture RGB is uniform; alpha is applied once during compositing.
+Stained glass and stained-glass panes use **source-over composited colours against a pure-white reference background, `#FFFFFF`**, before calculating variance. Every resulting pixel has equal weight, including the background visible through transparent pixels. This captures opacity patterns even when the original texture RGB is uniform; alpha is applied once during compositing.
 
-![White stained glass with its visible opacity pattern and composited channel variances](media/screenshots/30-glass-variance.jpg)
+White glass correctly has zero variance on this white reference background.
+
+![Red stained glass and its channel variances after compositing against white](media/screenshots/30-glass-variance.jpg)
 
 ## Choose a block arrangement
 
