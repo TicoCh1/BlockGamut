@@ -10,7 +10,7 @@ It runs entirely in the browser. No Minecraft installation, account, backend or 
 
 Created by [TicoCh1](https://github.com/TicoCh1). Minecraft textures © Mojang / Microsoft.
 
-![BlockGamut overview with feathered glass controls and the block inspector](media/screenshots/31-glass-ui.jpg)
+![BlockGamut overview with feathered glass controls and the block inspector](media/screenshots/51-docked-panels.jpg)
 
 ## Explore eight colour spaces
 
@@ -162,7 +162,9 @@ Select **My blacklist** in the Block list filter to view excluded blocks. Select
 
 Drag the scene to orbit and scroll to zoom. The bottom camera toolbar has been removed; the selected block retains its separate rotating preview. The language selector switches between English and Simplified Chinese and remembers the selection on that browser.
 
-Panels adapt to the viewport and reserve space for their feathered edges. Longer content uses themed scrollbars inside each panel. Dropdowns, resource disclosures and the information dialog share the same glass material and sequential disappear → shell motion → appear transitions. The section window supports pointer dragging and arrow-key movement, stays within the viewport and preserves live section preview while its position slider is dragged. Escape closes the information dialog and returns focus to its trigger.
+On desktop, the filter panel docks to the left and extends to the bottom, colour schemes dock to the bottom centre, and the block inspector docks to the bottom right and extends upward. The inspector keeps the same height for selected blocks, Air and expanded asset details; only the viewport size changes its height. Longer content uses themed scrollbars inside each panel. Narrow screens stack the controls and inspector above the bottom scheme bar. Panels reserve space for their feathered edges. Dropdowns, resource disclosures and the information dialog share the same glass material and sequential disappear → shell motion → appear transitions. The section window supports pointer dragging and arrow-key movement, stays within the viewport and preserves live section preview while its position slider is dragged. Escape closes the information dialog and returns focus to its trigger.
+
+![Docked filter, colour scheme and fixed-height block panels](media/screenshots/51-docked-panels.jpg)
 
 | Simplified Chinese | Data and method notes |
 | --- | --- |
