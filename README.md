@@ -14,7 +14,7 @@ Created by [TicoCh1](https://github.com/TicoCh1). Minecraft textures © Mojang /
 
 ## Explore eight colour spaces
 
-Choose **Coordinate space** to compare perceptual lightness, RGB channels or hue-based relationships. Every view uses the same selected release's materials and preserves the numerical colour values shown in the inspector.
+Choose **Coordinate space** in the upper-right header, beside **Arrangement** and the language selector, to compare perceptual lightness, RGB channels or hue-based relationships. Every view uses the same selected release's materials and preserves the numerical colour values shown in the inspector.
 
 | Oklab | sRGB |
 | --- | --- |
@@ -39,6 +39,8 @@ White glass correctly has zero variance on this white reference background.
 ![Red stained glass and its channel variances after compositing against white](media/screenshots/30-glass-variance.jpg)
 
 ## Choose a block arrangement
+
+Use **Arrangement** in the upper-right header.
 
 - **Spaced** leaves at least one block of clearance between native models.
 - **Packed** places models on a lattice while reserving their actual footprint.
@@ -146,13 +148,15 @@ Select **My blacklist** in the Block list filter to view excluded blocks. Select
 
 ## Camera, language and layout
 
-Drag the scene to orbit, scroll to zoom, enable automatic **Orbit**, or use **Reset camera** to return to the overview. The language selector switches between English and Simplified Chinese and remembers the selection on that browser.
+Drag the scene to orbit and scroll to zoom. The bottom camera toolbar has been removed; the selected block retains its separate rotating preview. The language selector switches between English and Simplified Chinese and remembers the selection on that browser.
 
 Panels adapt to the viewport and reserve space for their feathered edges. Longer content uses themed scrollbars inside each panel. Dropdowns, resource disclosures and the information dialog share the same glass material and sequential disappear → shell motion → appear transitions. The section window supports pointer dragging and arrow-key movement, stays within the viewport and preserves live section preview while its position slider is dragged. Escape closes the information dialog and returns focus to its trigger.
 
 | Simplified Chinese | Data and method notes |
 | --- | --- |
 | ![Simplified Chinese interface](media/screenshots/34-glass-chinese.jpg) | ![Built-in data and method notes](media/screenshots/35-glass-about.jpg) |
+
+<img src="media/screenshots/44-header-mobile.jpg" alt="Colour space and arrangement selectors wrap beneath the header on narrow screens" width="360">
 
 <img src="media/screenshots/40-schemes-mobile.jpg" alt="Compact layout with bounded controls and inspector" width="360">
 
