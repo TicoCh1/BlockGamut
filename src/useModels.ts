@@ -5,7 +5,9 @@ import type {Catalog} from './types';
 export interface ReleaseGroup {id:string;last:string;label:string;releases:string[];base:string|null;patch:string;blockCount:number}
 export interface ReleaseIndex {latest:string;latestRelease:string;releaseCount:number;groups:ReleaseGroup[]}
 export interface ModelResources {version:string;pack:any;texture:T.Texture;uniforms:Record<string,T.IUniform>;animatedIds:Set<string>;animate:(now:number)=>number;preview:(tile:number)=>{image:CanvasImageSource;x:number;y:number;size:number};dispose:()=>void}
-const json=async(url:string)=>{const response=await fetch(url);if(!response.ok)throw Error(`Missing ${url} (${response.status})`);return response.json();};
+declare const __DATA_REVISION__:string;
+// Keep catalog deltas from the same deployment together in browser/CDN caches.
+const json=async(url:string)=>{const response=await fetch(`${url}?v=${__DATA_REVISION__}`);if(!response.ok)throw Error(`Missing ${url} (${response.status})`);return response.json();};
 const sheetCache=new Map<string,Promise<HTMLImageElement>>();
 function image(url:string){let cached=sheetCache.get(url);if(!cached){cached=new Promise<HTMLImageElement>((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(Error(`Missing ${url}`));image.src=url;}).catch(error=>{sheetCache.delete(url);throw error;});sheetCache.set(url,cached);}return cached;}
 let tileTable:Promise<any>|null=null;
