@@ -12,6 +12,27 @@ Created by [TicoCh1](https://github.com/TicoCh1). Minecraft textures © Mojang /
 
 ![BlockGamut overview with feathered glass controls and the block inspector](media/screenshots/51-docked-panels.jpg)
 
+## Quick start
+
+1. Choose a Minecraft release in the left **Filters** panel, then narrow the materials by search, geometry and variance.
+2. Select a block in the scene, create a **New scheme** on the bottom bar, and drag the inspector’s block thumbnail into the first slot.
+3. Drag a second block into the last slot and click both endpoints to pin them. Set the length, colour space and **Lerp / Slerp** on the scheme row.
+4. Click **Refresh scheme** to fill the unpinned slots with distinct matching blocks. Drag to reorder, click to toggle a pin, or drag outside the rows to remove a block.
+5. Enable **Highlight scheme path** to see the route and matched blocks in 3D. Use **Export scheme** to preview and copy Minecraft IDs, legacy IDs or HEX colours.
+
+## Recent features
+
+| Feature | How it works |
+| --- | --- |
+| [Editable colour schemes](#manage-colour-schemes) | Independent length, colour space, Lerp/Slerp and filters; direct dragging, pinning and refresh. |
+| [Unique blocks and Minecraft lock badges](#unique-blocks-and-pinned-points) | No repeated block ID within a scheme; pinned blocks use the original cartography-table lock texture. |
+| [Clipboard export](#copy-and-export) | Modern `minecraft:…` IDs, legacy `5:1` IDs or actual block HEX colours, in slot order. |
+| [3D path highlights](#highlight-interpolation-paths) | Lerp straight segments or Slerp arcs between displayed control points, with outlines around the actual chosen blocks. |
+| [Variance histogram and range](#variance-range) | A log-scale distribution and two slider handles; statistics and remembered ranges follow the selected colour space. |
+| [Geometry and release filters](#filter-materials-and-historical-releases) | Seven geometry categories, original historical textures and grouped releases with incremental assets. |
+| [Collection and blacklist](#inspect-native-models-and-build-a-collection) | Keep a working palette or exclude materials, including grouped variants. |
+| [Docked panels and header controls](#camera-language-and-layout) | Left filters extend to the bottom, schemes dock below, and the bottom-right inspector keeps a fixed height; colour space, arrangement, variance and section controls sit at the top right. |
+
 ## Explore eight colour spaces
 
 Choose **Coordinate space** in the upper-right header, beside **Arrangement** and the language selector, to compare perceptual lightness, RGB channels or hue-based relationships. Every view uses the same selected release's materials and preserves the numerical colour values shown in the inspector.
@@ -78,7 +99,7 @@ Switching a release changes its available blocks, original textures, models, col
 
 ![The earliest material group with original textures](media/screenshots/16-old-release.jpg)
 
-**Group materials** merges identical resolved texture sets and tints, preferring a full cube when available. Similar colours alone do not merge blocks. Disable grouping to include individual variants. Block geometry is a multi-select filter: Full cubes, Transparent cubes, Flat planes, Entity, Oversized, Sets and Other. Selected categories form a union; clearing them shows no blocks. Glass and other cubes with transparent surfaces are separated from solid Full cubes. Multipart mushroom shells remain full cubes. Beds include both original head and foot models and belong to Oversized. Sets is a subset of solid Full cubes with a matching slab/stair family in the selected release, including wood planks/logs and stone-brick families. **Colour source** can use the model average or any of its six faces.
+**Group materials** merges identical resolved texture sets and tints, preferring a full cube when available. Similar colours alone do not merge blocks. Disable grouping to include individual variants. Block geometry is shown expanded and supports multiple selections: Full cubes, Transparent cubes, Flat planes, Entity, Oversized, Sets and Other. Selected categories form a union; clearing them shows no blocks. Glass and other cubes with transparent surfaces are separated from solid Full cubes. Multipart mushroom shells remain full cubes. Beds include both original head and foot models and belong to Oversized. Sets is a subset of solid Full cubes with a matching slab/stair family in the selected release, including wood planks/logs and stone-brick families. **Colour source** can use the model average or any of its six faces.
 
 ![Seven geometry categories selected independently](media/screenshots/37-multiselect.jpg)
 
@@ -106,15 +127,31 @@ Two instances of the original FORM `<|>` slider thumb share one logarithmic trac
 
 Use **New scheme** on the lower centre bar. Each horizontal row is one scheme, with its own name, integer length (at least **3**), colour space, interpolation and filters. Edit the name, length, colour space and **Lerp / Slerp** directly on the row. The settings icon opens only block filters and variance filters. New schemes inherit the current geometry selection and colour space, then remain independent of the explorer controls. The selected Minecraft release supplies every scheme's materials.
 
+![Independent colour scheme with pinned endpoints and interpolated blocks](media/screenshots/36-colour-schemes.jpg)
+
+### Drag, pin and refresh
+
 Drag the selected block's **title or model thumbnail in the right inspector** into a slot. Every filled slot, including generated materials, is draggable. Click a block to **pin** it; click again to **unpin** it. Drag within a row to reorder; the pin moves with its block. Drag into another row to move it there. Drag out of all rows and release to remove it, leaving an empty slot without changing the configured length. A model copy follows the pointer, destination slots highlight, and Escape cancels.
+
+![The dragged block preview follows the pointer](media/screenshots/42-block-drag-preview.jpg)
 
 Use the row's **refresh arrow** to fill unpinned slots with the current colour space, interpolation and filters. Pinned blocks remain exact. Edits stay visible until refresh; when there are no pins, refresh uses the first and last remaining blocks as temporary endpoints. Incoming inspector blocks start unpinned. Clicking a slot also displays its actual block in the inspector, including blocks outside the explorer filters.
 
-Unpinned slots interpolate between neighbouring control points in the scheme's colour space, then match the nearest eligible block that is not already used in the row. **Lerp** is the default: it blends channel values linearly, using the shortest hue arc in HSV/HSL and chroma in HSL bicone. **Slerp** follows the shortest spherical arc in the atlas's fixed coordinate metric, around that space's black origin, while blending distance from black linearly. Hue spaces use their cylinder or bicone geometry. Output colours are clipped to valid channel/RGB bounds. Exact control points remain unchanged in either mode. Outside the outermost control points the endpoint colour is held. The thin swatch below each cell shows the target colour; the thumbnail shows a three-dimensional preview of the matched Minecraft block. Technical blocks such as `minecraft:test_block` retain their original appearance and are identified by name and ID. Each block ID appears at most once per scheme, including pins. When eligible unused blocks run out, the remaining slots stay empty. Dropping a block already present in the destination row moves its existing occurrence and preserves its pin. Resizing keeps existing blocks unique and leaves new slots empty until refresh. Previously saved duplicate rows are deduplicated and refreshed when loaded. The pin badge uses Minecraft’s original cartography-table lock texture. Control points retain their exact block IDs even when excluded by that scheme's filters or unavailable in another release.
+### Lerp and Slerp
+
+Unpinned slots interpolate between neighbouring control points in the scheme's colour space, then match the nearest eligible block that is not already used in the row. **Lerp** is the default: it blends channel values linearly, using the shortest hue arc in HSV/HSL and chroma in HSL bicone. **Slerp** follows the shortest spherical arc in the atlas's fixed coordinate metric, around that space's black origin, while blending distance from black linearly. Hue spaces use their cylinder or bicone geometry. Output colours are clipped to valid channel/RGB bounds. Exact control points remain unchanged in either mode. Outside the outermost control points the endpoint colour is held. The thin swatch below each cell shows the target colour; the thumbnail shows a three-dimensional preview of the matched Minecraft block. Technical blocks such as `minecraft:test_block` retain their original appearance and are identified by name and ID.
+
+### Unique blocks and pinned points
+
+Each block ID appears at most once per scheme, including pins. When eligible unused blocks run out, the remaining slots stay empty. Dropping a block already present in the destination row moves its existing occurrence and preserves its pin. Resizing keeps existing blocks unique and leaves new slots empty until refresh. Previously saved duplicate rows are deduplicated and refreshed when loaded. The pin badge uses Minecraft’s original cartography-table lock texture. Control points retain their exact block IDs even when excluded by that scheme's filters or unavailable in another release.
+
+### Copy and export
 
 Use the **copy/export icon** on each row to preview and copy that scheme. Choose modern IDs (`minecraft:spruce_planks`), legacy numeric IDs (`5:1`), or HEX (`#725430`). The clipboard contains one value per line in slot order, with empty slots omitted. HEX uses the actual matched block’s average colour from the selected release. Legacy export uses the canonical ID and metadata alias; blocks with no legacy numeric ID are listed before copying and omitted from that format. The preview remains selectable for manual copying.
 
 ![Scheme export with legacy numeric IDs and explicitly omitted modern blocks](media/screenshots/46-scheme-export.jpg)
+
+### Highlight interpolation paths
 
 The **route/highlight icon** beside export toggles that row’s path and block outlines. In the current model layout, **Lerp** draws straight segments between pinned block centres; **Slerp** draws spherical arcs about the displayed coordinate origin, interpolating the distance from that origin. With no pins, the first and last remaining blocks act as endpoints. Every filled scheme slot receives a cyan outline in the explorer; grouped variants share their displayed representative, and Dense fill highlights every visible matching instance. Inspector selection retains its gold outline. Paths update after layout changes and respect section visibility; controls excluded from the explorer or hidden by a section do not create a segment. The overlay works in both colour and variance views. Scheme material matching still uses its own colour space and filters; refresh updates the actual selected blocks after changing interpolation or filters.
 
@@ -122,17 +159,17 @@ The **route/highlight icon** beside export toggles that row’s path and block o
 | --- | --- |
 | ![Lerp path and matched block outlines](media/screenshots/47-scheme-lerp-path.jpg) | ![Slerp path and matched block outlines](media/screenshots/48-scheme-slerp-path.jpg) |
 
+### Independent filters and saved schemes
+
 **Scheme filters** contains geometry categories, search, collection/blacklist choice, variance range, opacity and biome tint inclusion. Variance bounds are remembered separately for each scheme's colour spaces. Resizing distributes control points proportionally across the new integer slots; if several land on one slot, the later point is retained. Rename, remove, collapse or add schemes as needed. Schemes are saved in this browser and survive reloads; collection and blacklist entries remain session-based.
+
+![Scheme-specific block and variance filters](media/screenshots/39-scheme-settings.jpg)
+
+### Mobile scheme manager
 
 On narrow screens, the lower bar opens the scheme manager in a scrollable glass dialog, keeping the inspector accessible when the dialog is closed. A draggable copy of the currently selected block is available at the top. The same tap-to-pin, drag, refresh, highlight and export controls work in that dialog; Enter or Space toggles a focused slot’s pin.
 
-![Independent colour scheme with pinned endpoints and interpolated blocks](media/screenshots/36-colour-schemes.jpg)
-
-![The dragged block preview follows the pointer](media/screenshots/42-block-drag-preview.jpg)
-
 <img src="media/screenshots/49-export-mobile.jpg" alt="Scheme export on a narrow screen" width="360">
-
-![Scheme-specific block and variance filters](media/screenshots/39-scheme-settings.jpg)
 
 ## Inspect native models and build a collection
 
