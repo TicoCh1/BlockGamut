@@ -4,5 +4,6 @@ export interface Catalog {source:string;minecraftTarget:string;sourceTotal:numbe
 export interface Sample {block:Block;hex:string;rgb:number[];lab:number[];fallback:boolean}
 export type Space = 'oklab'|'srgb'|'linear'|'hsv'|'hsl'|'hsl-bicone'|'xyz'|'lab';
 export type Arrangement='spaced'|'packed'|'dense';
+export interface SchemeHighlight {id:string;interpolation:'lerp'|'slerp';controls:string[];blockIds:string[]}
 export interface VoxelSection {preview?:boolean;enabled:boolean;axis:'x'|'y'|'z'|'hue'|'radius';position:number;style:'cutaway'|'layer';flip:boolean}
 export interface VoxelData {cells:number[][];indices:number[];pitch:number;origin:number;bounds:{min:number[];max:number[]};mode:Arrangement;space:Space;variance?:boolean;reserved:number}

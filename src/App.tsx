@@ -10,7 +10,7 @@ import {LocaleLabel,useLocale,type Locale} from './i18n';
 import chineseNames from './blockNames.zh-CN.json';
 import {useCallback,useDeferredValue,useEffect,useMemo,useState} from 'react';
 import {GlassPanel,GlassButton,GlassLink,GlassInput,GlassProvider,GlassSelect,GlassSwitch,GlassScrollArea,GlassDialog,GlassDisclosure} from '@form-glass/react';
-import {Box,Check,ChevronRight,Info,Layers3,Focus,Ban} from 'lucide-react';
+import {Box,Check,Info,Layers3,Focus,Ban,ChartColumn,ScanLine} from 'lucide-react';
 import {filterBlocks,groupMaterials,samplesFor,materialVariance} from './color.mjs';
 import {Scene} from './Scene';
 import {Turntable} from './Turntable';
@@ -18,7 +18,7 @@ import {useModels} from './useModels';
 import {spaces,coordinates,coordinateLabels} from './spaces.mjs';
 import {VoxelSectionWindow} from './VoxelSectionWindow';
 import {arrangements,visibleVoxels} from './voxels.mjs';
-import type {Catalog,Block,Sample,Space,Arrangement,VoxelData,VoxelSection} from './types';
+import type {Catalog,Block,Sample,Space,Arrangement,VoxelData,VoxelSection,SchemeHighlight} from './types';
 
 const blockLists=[{value:'all',label:'All blocks'},{value:'collection',label:'My collection'},{value:'blacklist',label:'My blacklist'}];
 const faces=['average','up','north','south','east','west','down'].map(value=>({value,label:({average:'Model average',up:'Top face',down:'Bottom face',north:'North face',south:'South face',east:'East face',west:'West face'} as Record<string,string>)[value]}));
@@ -38,6 +38,7 @@ export function App(){
  const [grouped,setGrouped]=useState(true),[focus,setFocus]=useState(0),[assetDetails,setAssetDetails]=useState(false);
  const [categories,setCategories]=useState<string[]>([...allModelClasses]),[category,setCategory]=useState('all'),[query,setQuery]=useState(''),[face,setFace]=useState('average'),[opaque,setOpaque]=useState(false),[tinted,setTinted]=useState(true);
  const [space,setSpace]=useState<Space>('oklab'),[variance,setVariance]=useState(false),[rotate,setRotate]=useState(false);
+ const [schemeHighlights,setSchemeHighlights]=useState<SchemeHighlight[]>([]);
  const [schemeSelection,setSchemeSelection]=useState(false);
  const [selected,setSelected]=useState('minecraft:orange_terracotta'),[collection,setCollection]=useState<string[]>([]),[blacklist,setBlacklist]=useState<string[]>([]);
  const [varianceRanges,setVarianceRanges]=useState<Partial<Record<Space,[number,number]>>>({});
@@ -77,16 +78,14 @@ export function App(){
  const bootStage=!catalog||!resources?'Loading Minecraft release materials…':'Placing blocks in colour space…';
  return view(<GlassProvider theme="dark" refractionEnabled={false}>
   <main className="explorer" aria-hidden={booting} {...(booting?{inert:''} as any:{})}>
-   <div className="world-view"><Scene catalogReady={!!catalog} onReady={reportReady} onStartupError={setSceneError} arrangement={arrangement} voxelSection={voxelSection} onVoxelData={setVoxelData} samples={samples} space={space} variance={variance} hull={false} reference={false} rotate={rotate} slice={false} lightness={.65} resources={resources} assetError={assetError} selected={sceneActive?.id||''} reset={0} focus={focus} onSelect={pick} onRotateStop={stopOrbit} onModelStats={setModelStats}/></div>
-   <header className="scene-header"><div className="brand"><Box size={24} strokeWidth={1.2}/><div><h1>Shape of blocks</h1><span>BLOCKGAMUT / COLOUR EXPLORER</span></div></div><div className="header-actions"><div className="atlas-controls"><div className="coordinate-control"><GlassSelect label="Coordinate space" value={space} onChange={value=>setSpace(value as Space)} options={spaces.map(({value,label})=>({value,label}))}/></div><div className="arrangement-control"><GlassSelect label="Arrangement" value={arrangement} onChange={v=>setArrangement(v as Arrangement)} options={arrangements}/></div></div><div className="language-control"><GlassSelect label="Language" value={locale} onChange={v=>setLocale(v as Locale)} options={[{value:"en",label:"English"},{value:"zh-CN",label:"简体中文"}]}/></div><GlassButton id="notes-trigger" aria-expanded={help} aria-haspopup="dialog" aria-label="About the data and method" onClick={()=>setHelp(true)}><Info size={17}/></GlassButton></div></header>
+   <div className="world-view"><Scene schemeHighlights={schemeHighlights} catalogReady={!!catalog} onReady={reportReady} onStartupError={setSceneError} arrangement={arrangement} voxelSection={voxelSection} onVoxelData={setVoxelData} samples={samples} space={space} variance={variance} hull={false} reference={false} rotate={rotate} slice={false} lightness={.65} resources={resources} assetError={assetError} selected={sceneActive?.id||''} reset={0} focus={focus} onSelect={pick} onRotateStop={stopOrbit} onModelStats={setModelStats}/></div>
+   <header className="scene-header"><div className="brand"><Box size={24} strokeWidth={1.2}/><div><h1>Shape of blocks</h1><span>BLOCKGAMUT / COLOUR EXPLORER</span></div></div><div className="header-actions"><div className="atlas-controls"><div className="atlas-mode-controls"><GlassButton className="atlas-mode-control" aria-label="Material variance" title="Material variance" aria-pressed={variance} onClick={()=>setVariance(v=>!v)}><ChartColumn size={16}/></GlassButton><GlassButton id="voxel-section-trigger" className="atlas-mode-control" aria-label="Voxel section" title="Voxel section" aria-pressed={voxelSection.enabled&&arrangement!=='spaced'} aria-expanded={voxelSection.enabled&&arrangement!=='spaced'} aria-controls="voxel-section-window" disabled={arrangement==='spaced'} onClick={()=>updateSection({enabled:!voxelSection.enabled,preview:false})}><ScanLine size={16}/></GlassButton></div><div className="coordinate-control"><GlassSelect label="Coordinate space" value={space} onChange={value=>setSpace(value as Space)} options={spaces.map(({value,label})=>({value,label}))}/></div><div className="arrangement-control"><GlassSelect label="Arrangement" value={arrangement} onChange={v=>setArrangement(v as Arrangement)} options={arrangements}/></div></div><div className="language-control"><GlassSelect label="Language" value={locale} onChange={v=>setLocale(v as Locale)} options={[{value:"en",label:"English"},{value:"zh-CN",label:"简体中文"}]}/></div><GlassButton id="notes-trigger" aria-expanded={help} aria-haspopup="dialog" aria-label="About the data and method" onClick={()=>setHelp(true)}><Info size={17}/></GlassButton></div></header>
    <p className="project-notice"><span>Minecraft textures © Mojang / Microsoft.</span><span>Publisher: <GlassLink href="https://github.com/TicoCh1" target="_blank" rel="noreferrer">TicoCh1</GlassLink> · <GlassLink href="https://github.com/TicoCh1/BlockGamut" target="_blank" rel="noreferrer">Source &amp; licenses</GlassLink></span></p>
    {catalog&&<>
     <GlassPanel id="explorer-controls" className="control-panel"><GlassScrollArea label="Explorer controls" maxHeight="var(--controls-height)" viewportClassName="control-viewport"><div className="panel-content">
-     <GlassSwitch label="Material variance" checked={variance} onChange={setVariance}/>
      <div className="section-label divider"><span>VOXELS</span><span>1 × 1 × 1</span></div>
      <p className="micro muted arrangement-summary">{arrangement==='spaced'?'One-block gap':arrangement==='packed'?'Touching native models':'Nearest fill · each material ≥ 1 cell'}</p>
-     {arrangement!=='spaced'&&<><p className="voxel-count" role="status">{grid?`${visibleCells.length.toLocaleString()} / ${grid.cells.length.toLocaleString()} cells visible`:'Preparing voxel grid…'}</p>
-      <GlassButton id="voxel-section-trigger" className="disclosure" aria-expanded={voxelSection.enabled} aria-controls="voxel-section-window" onClick={()=>updateSection({enabled:!voxelSection.enabled,preview:false})}><span>Voxel section</span><ChevronRight size={14}/></GlassButton></>}
+     {arrangement!=='spaced'&&<p className="voxel-count" role="status">{grid?`${visibleCells.length.toLocaleString()} / ${grid.cells.length.toLocaleString()} cells visible`:'Preparing voxel grid…'}</p>}
      <div className="section-label divider"><span>FILTERS</span><span>{filtered.length}</span></div>
      {releases&&<GlassSelect label="Minecraft version" value={version} onChange={setVersion} options={releases.groups.map(g=>({value:g.id,label:g.label}))}/>}
      {releaseGroup&&<p className="version-filter-note">Minecraft {releaseGroup.id}{releaseGroup.last!==releaseGroup.id?` – ${releaseGroup.last}`:''} · {releaseGroup.releases.length}{locale==='zh-CN'?' 个正式版本':` release${releaseGroup.releases.length===1?'':'s'}`}</p>}
@@ -109,7 +108,7 @@ export function App(){
     {!active&&<GlassPanel id="air-inspector" className="block-inspector air-inspector"><GlassScrollArea label="Selected block details" maxHeight="var(--inspector-height)" viewportClassName="inspector-viewport"><div className="inspector-content"><div className="inspector-heading"><Box size={24}/><div><span className="eyebrow">SELECTED BLOCK</span><h2>Air</h2></div></div><div className="air-symbol" aria-hidden="true">∅</div><div className="block-id">minecraft:air</div><p className="micro muted">No block selected</p></div></GlassScrollArea></GlassPanel>}
 
    </>}
-   {catalog&&<ColourSchemes blocks={localizedBlocks} resources={resources} selected={active} space={space} categories={categories} collection={collection} blacklist={blacklist} onPick={pickScheme}/>}
+   {catalog&&<ColourSchemes blocks={localizedBlocks} resources={resources} selected={active} space={space} categories={categories} collection={collection} blacklist={blacklist} onPick={pickScheme} onHighlights={setSchemeHighlights}/>}
    <div className="view-caption"><span>{arrangement==='spaced'?'VANILLA BLOCK MODELS':'MATERIAL VOXELS'}</span><p>Texture by texture. Colour by colour.</p></div>
 
   </main>

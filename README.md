@@ -28,7 +28,7 @@ Choose **Coordinate space** in the upper-right header, beside **Arrangement** an
 
 ### Material variance
 
-Enable **Material variance** in any colour space to compare texture variation instead of average colour. Statistics use **six 16×16 material planes (1,536 pixels)** derived from the original unlit UV regions. Small regions repeat to fill the plane; larger regions use BOX downsampling. Unique regions in each direction share one plane, and missing directions repeat available material planes. Transparency contributes no colour weight. Model size, face area and duplicate geometry do not increase statistical weight. The displayed textures and native model dimensions keep their original appearance. The axes use fixed logarithmic scales, including a finite floor for zero; inspector values remain the original, unscaled population variances. Hue variance uses shortest-arc distances and excludes achromatic pixels.
+Use the **Material variance** chart button in the upper-right header, beside the colour-space selector, in any colour space to compare texture variation instead of average colour. Statistics use **six 16×16 material planes (1,536 pixels)** derived from the original unlit UV regions. Small regions repeat to fill the plane; larger regions use BOX downsampling. Unique regions in each direction share one plane, and missing directions repeat available material planes. Transparency contributes no colour weight. Model size, face area and duplicate geometry do not increase statistical weight. The displayed textures and native model dimensions keep their original appearance. The axes use fixed logarithmic scales, including a finite floor for zero; inspector values remain the original, unscaled population variances. Hue variance uses shortest-arc distances and excludes achromatic pixels.
 
 ![Material variance arranged on logarithmic axes](media/screenshots/11-variance.jpg)
 
@@ -56,7 +56,7 @@ Collision handling can move blocks away from their exact mathematical colour coo
 
 ## Open a voxel section
 
-In Packed or Dense fill, **Voxel section** opens a movable window with a textured two-dimensional cross-section. Choose an axis and position, keep a cutaway volume or a single voxel layer, and reverse the retained side. Hue-angle and radius sections are available in hue-based colour spaces when variance is off.
+In Packed or Dense fill, the **Voxel section** scan button beside the upper-right colour-space selector opens a movable window with a textured two-dimensional cross-section. Choose an axis and position, keep a cutaway volume or a single voxel layer, and reverse the retained side. Hue-angle and radius sections are available in hue-based colour spaces when variance is off.
 
 Drag the window by its header, or focus the drag handle and use arrow keys; Shift makes one-pixel adjustments. The position slider updates the slice and 3D section while dragging. Clicking a slice tile selects every instance of that block.
 
@@ -112,13 +112,25 @@ Use the row's **refresh arrow** to fill unpinned slots with the current colour s
 
 Unpinned slots interpolate between neighbouring control points in the scheme's colour space, then match the nearest eligible block that is not already used in the row. **Lerp** is the default: it blends channel values linearly, using the shortest hue arc in HSV/HSL and chroma in HSL bicone. **Slerp** follows the shortest spherical arc in the atlas's fixed coordinate metric, around that space's black origin, while blending distance from black linearly. Hue spaces use their cylinder or bicone geometry. Output colours are clipped to valid channel/RGB bounds. Exact control points remain unchanged in either mode. Outside the outermost control points the endpoint colour is held. The thin swatch below each cell shows the target colour; the thumbnail shows a three-dimensional preview of the matched Minecraft block. Technical blocks such as `minecraft:test_block` retain their original appearance and are identified by name and ID. Each block ID appears at most once per scheme, including pins. When eligible unused blocks run out, the remaining slots stay empty. Dropping a block already present in the destination row moves its existing occurrence and preserves its pin. Resizing keeps existing blocks unique and leaves new slots empty until refresh. Previously saved duplicate rows are deduplicated and refreshed when loaded. The pin badge uses Minecraft’s original cartography-table lock texture. Control points retain their exact block IDs even when excluded by that scheme's filters or unavailable in another release.
 
+Use the **copy/export icon** on each row to preview and copy that scheme. Choose modern IDs (`minecraft:spruce_planks`), legacy numeric IDs (`5:1`), or HEX (`#725430`). The clipboard contains one value per line in slot order, with empty slots omitted. HEX uses the actual matched block’s average colour from the selected release. Legacy export uses the canonical ID and metadata alias; blocks with no legacy numeric ID are listed before copying and omitted from that format. The preview remains selectable for manual copying.
+
+![Scheme export with legacy numeric IDs and explicitly omitted modern blocks](media/screenshots/46-scheme-export.jpg)
+
+The **route/highlight icon** beside export toggles that row’s path and block outlines. In the current model layout, **Lerp** draws straight segments between pinned block centres; **Slerp** draws spherical arcs about the displayed coordinate origin, interpolating the distance from that origin. With no pins, the first and last remaining blocks act as endpoints. Every filled scheme slot receives a cyan outline in the explorer; grouped variants share their displayed representative, and Dense fill highlights every visible matching instance. Inspector selection retains its gold outline. Paths update after layout changes and respect section visibility; controls excluded from the explorer or hidden by a section do not create a segment. The overlay works in both colour and variance views. Scheme material matching still uses its own colour space and filters; refresh updates the actual selected blocks after changing interpolation or filters.
+
+| Lerp · straight segments | Slerp · spherical arcs |
+| --- | --- |
+| ![Lerp path and matched block outlines](media/screenshots/47-scheme-lerp-path.jpg) | ![Slerp path and matched block outlines](media/screenshots/48-scheme-slerp-path.jpg) |
+
 **Scheme filters** contains geometry categories, search, collection/blacklist choice, variance range, opacity and biome tint inclusion. Variance bounds are remembered separately for each scheme's colour spaces. Resizing distributes control points proportionally across the new integer slots; if several land on one slot, the later point is retained. Rename, remove, collapse or add schemes as needed. Schemes are saved in this browser and survive reloads; collection and blacklist entries remain session-based.
 
-On narrow screens, the lower bar opens the scheme manager in a scrollable glass dialog, keeping the inspector accessible when the dialog is closed. A draggable copy of the currently selected block is available at the top. The same tap-to-pin, drag and refresh controls work in that dialog; Enter or Space toggles a focused slot’s pin.
+On narrow screens, the lower bar opens the scheme manager in a scrollable glass dialog, keeping the inspector accessible when the dialog is closed. A draggable copy of the currently selected block is available at the top. The same tap-to-pin, drag, refresh, highlight and export controls work in that dialog; Enter or Space toggles a focused slot’s pin.
 
 ![Independent colour scheme with pinned endpoints and interpolated blocks](media/screenshots/36-colour-schemes.jpg)
 
 ![The dragged block preview follows the pointer](media/screenshots/42-block-drag-preview.jpg)
+
+<img src="media/screenshots/49-export-mobile.jpg" alt="Scheme export on a narrow screen" width="360">
 
 ![Scheme-specific block and variance filters](media/screenshots/39-scheme-settings.jpg)
 

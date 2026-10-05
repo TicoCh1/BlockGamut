@@ -1,3 +1,4 @@
+import {createSchemeOverlay} from './SchemeOverlay';
 import {FOCUS_MS,focusPose} from './cameraMotion.mjs';
 import {useLocale} from './i18n';
 import {memo,useEffect,useRef,useState} from 'react';
@@ -8,10 +9,10 @@ import {fromLab,inGamut} from './color.mjs';
 import {MOTION_MS} from './motion.mjs';
 import {createTransitionField,createDenseTransitionField} from './TransitionField';
 import {project,axisLabels} from './spaces.mjs';
-import type {Sample,Space,Arrangement,VoxelData,VoxelSection} from './types';
+import type {Sample,Space,Arrangement,VoxelData,VoxelSection,SchemeHighlight} from './types';
 import {createVoxelField} from './VoxelField';
 import type {ModelResources} from './useModels';
-interface Props {catalogReady:boolean;onReady:()=>void;onStartupError:(message:string)=>void;arrangement:Arrangement;voxelSection:VoxelSection;onVoxelData:(data:VoxelData|null)=>void;samples:Sample[];space:Space;variance:boolean;hull:boolean;reference:boolean;rotate:boolean;slice:boolean;lightness:number;resources:ModelResources|null;assetError:boolean;selected:string;reset:number;focus:number;onSelect:(id:string)=>void;onRotateStop:()=>void;onModelStats:(stats:{rendered:number;unsupported:number}|null)=>void}
+interface Props {schemeHighlights:SchemeHighlight[];catalogReady:boolean;onReady:()=>void;onStartupError:(message:string)=>void;arrangement:Arrangement;voxelSection:VoxelSection;onVoxelData:(data:VoxelData|null)=>void;samples:Sample[];space:Space;variance:boolean;hull:boolean;reference:boolean;rotate:boolean;slice:boolean;lightness:number;resources:ModelResources|null;assetError:boolean;selected:string;reset:number;focus:number;onSelect:(id:string)=>void;onRotateStop:()=>void;onModelStats:(stats:{rendered:number;unsupported:number}|null)=>void}
 const vector=(p:number[])=>new T.Vector3(...p as [number,number,number]);
 function dispose(group:T.Object3D){group.traverse(o=>{const m=o as T.Mesh;m.geometry?.dispose();if(m.material)for(const mat of Array.isArray(m.material)?m.material:[m.material]){const map=(mat as T.MeshBasicMaterial).map;if(map&&!map.userData.shared)map.dispose();mat.dispose();}});}
 function label(text:string,pos:T.Vector3){const c=document.createElement('canvas');c.width=512;c.height=64;const ctx=c.getContext('2d')!;ctx.font='24px monospace';ctx.fillStyle='#8d949f';ctx.textAlign='center';ctx.fillText(text,256,40);const sprite=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(c),depthTest:false}));sprite.position.copy(pos);sprite.scale.set(1.1,.1375,1);return sprite;}
@@ -41,8 +42,17 @@ export const Scene=memo(function Scene(props:Props){
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=T.SRGBColorSpace;el.appendChild(renderer.domElement);renderer.domElement.setAttribute('aria-label',t('Interactive 3D block colour atlas. Drag to orbit, scroll to zoom. Click a block to select it.'));
   const scene=new T.Scene(),camera=new T.PerspectiveCamera(34,1,.01,150);camera.position.set(3.7,2.2,5);
   const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minDistance=.08;controls.maxDistance=40;controls.autoRotateSpeed=.55;controls.addEventListener('start',()=>{if(state.current){state.current.focusTween=null;controls.enableDamping=true;el.dataset.focusState='interrupted';}latest.current.onRotateStop();});
-  const data=new T.Group(),guide=new T.Group();scene.add(data,guide);const worker=new Worker(new URL('./layout.worker.ts',import.meta.url),{type:'module'});
-  const s:any={renderer,scene,camera,controls,data,guide,worker,request:0,mesh:null,dirty:true,cells:null,ids:'',animation:null,pending:null};state.current=s;
+  const data=new T.Group(),guide=new T.Group(),schemeOverlay=new T.Group();scene.add(data,guide,schemeOverlay);const worker=new Worker(new URL('./layout.worker.ts',import.meta.url),{type:'module'});
+  const s:any={renderer,scene,camera,controls,data,guide,schemeOverlay,worker,request:0,mesh:null,dirty:true,cells:null,ids:'',animation:null,pending:null};state.current=s;
+  s.rebuildSchemes=()=>{
+   dispose(s.schemeOverlay);s.schemeOverlay.clear();
+   if(s.animation||!s.grid||!s.drawSamples)return;
+   s.schemeOverlay.visible=true;
+   const overlay=createSchemeOverlay(latest.current.schemeHighlights,s.drawSamples,s.grid,{...latest.current.voxelSection,enabled:s.grid.mode!=='spaced'&&latest.current.voxelSection.enabled});
+   s.schemeOverlay.add(overlay);
+   const ids=latest.current.schemeHighlights.flatMap(h=>h.blockIds);s.field?.highlight?.(ids);s.previewVoxel?.highlight(ids);
+   el.dataset.schemePaths=String(overlay.userData.pathCount);s.dirty=true;
+  };
   worker.onmessage=({data:result})=>{if(result.id===s.request)s.receive?.(result);};worker.onerror=()=>{setMotion('Layout worker unavailable. Refresh to retry.');if(!s.readyReported)latest.current.onStartupError('Block layout could not start. Refresh to retry.');};
   controls.addEventListener('change',()=>{s.dirty=true;});const resize=new ResizeObserver(()=>{const w=el.clientWidth,h=el.clientHeight;renderer.setSize(w,h);camera.aspect=w/Math.max(h,1);camera.updateProjectionMatrix();s.dirty=true;});resize.observe(el);
   let down=[0,0];const start=(e:PointerEvent)=>{down=[e.clientX,e.clientY];};const pick=(e:PointerEvent)=>{if(Math.hypot(e.clientX-down[0],e.clientY-down[1])>5||!s.mesh)return;const box=el.getBoundingClientRect(),ray=new T.Raycaster();ray.setFromCamera(new T.Vector2((e.clientX-box.left)/box.width*2-1,-(e.clientY-box.top)/box.height*2+1),camera);const hit=ray.intersectObject(s.mesh,true).find(hit=>hit.object.visible);if(hit?.face){const sampleIndex=hit.object.userData.sampleIndex??(hit.object as T.Mesh).geometry.getAttribute('sampleIndex')?.getX(hit.face.a);const sample=(hit.object.userData.motionSamples||s.drawSamples)[sampleIndex];if(sample)latest.current.onSelect(sample.block.id);}else latest.current.onSelect('');};
@@ -63,15 +73,16 @@ export const Scene=memo(function Scene(props:Props){
  useEffect(()=>{const s=state.current;if(!s||!resources||s.resourceVersion===resources.version)return;s.resourceVersion=resources.version;s.request++;s.pending=null;s.animation=null;s.snapshot=null;s.hasAnimated=false;dispose(s.data);s.data.clear();s.field=null;s.voxel=null;s.previewVoxel=null;s.mesh=null;s.dirty=true;},[resources]);
  useEffect(()=>{state.current?.renderer.domElement.setAttribute('aria-label',t('Interactive 3D block colour atlas. Drag to orbit, scroll to zoom. Click a block to select it.'));},[locale]);
  useEffect(()=>{const s=state.current;if(s){s.focusTween=null;s.controls.enableDamping=true;host.current!.dataset.focusState='idle';s.camera.position.copy(vector(latest.current.arrangement==='dense'?[4.8,3.2,6.5]:[3.7,2.2,5]));s.controls.target.set(0,0,0);s.controls.update();}},[props.reset]);
+ useEffect(()=>{state.current?.rebuildSchemes();},[props.schemeHighlights]);
  useEffect(()=>{const s=state.current;if(s){s.field?.select(props.selected);s.dirty=true;}},[props.selected]);
  useEffect(()=>{const s=state.current;const enabledChanged=s&&s.sectionEnabled!==props.voxelSection.enabled;if(s)s.sectionEnabled=props.voxelSection.enabled;const update=()=>{if(s?.animation){s.animation.field.apply(Math.max(0,Math.min(1,(performance.now()-s.animation.started)/MOTION_MS)),props.voxelSection);s.dirty=true;return;}if(s?.voxel){const started=performance.now();host.current!.dataset.sectionUpdates=String((s.sectionUpdates=(s.sectionUpdates||0)+1));const live=props.voxelSection.enabled&&props.voxelSection.preview;
-   if(live&&!s.previewVoxel){s.previewVoxel=createVoxelField(resources!,s.drawSamples,s.grid,true);s.previewVoxel.update(props.voxelSection);s.data.add(s.previewVoxel.mesh);}
+   if(live&&!s.previewVoxel){s.previewVoxel=createVoxelField(resources!,s.drawSamples,s.grid,true);s.previewVoxel.highlight(latest.current.schemeHighlights.flatMap(h=>h.blockIds));s.previewVoxel.update(props.voxelSection);s.data.add(s.previewVoxel.mesh);}
    const field=live?s.previewVoxel:s.voxel;field.update(props.voxelSection);field.select(props.selected);
    s.voxel.mesh.visible=!live;if(s.previewVoxel)s.previewVoxel.mesh.visible=!!live;s.field=field;s.mesh=field.mesh;
    host.current!.dataset.sectionMode=live?'live':'settled';host.current!.dataset.sectionVisible=String(field.mesh.userData.visibleIndices.length);
-   s.sectionIsLive=!!live;s.sectionCost=performance.now()-started;s.dirty=true;}};if(enabledChanged&&!props.voxelSection.preview){const timer=setTimeout(update,200);return()=>clearTimeout(timer);}update();},[props.voxelSection,resources]);
+   if(live)s.schemeOverlay.visible=false;else s.rebuildSchemes();s.sectionIsLive=!!live;s.sectionCost=performance.now()-started;s.dirty=true;}};if(enabledChanged&&!props.voxelSection.preview){const timer=setTimeout(update,200);return()=>clearTimeout(timer);}update();},[props.voxelSection,resources]);
  useEffect(()=>{if(!props.voxelSection.enabled||props.arrangement==='spaced')return;const s=state.current,grid=s?.grid;
-  const timer=setTimeout(()=>{if(!s?.voxel||s.animation||s.grid!==grid||s.previewVoxel||!resources)return;s.previewVoxel=createVoxelField(resources,s.drawSamples,grid,true);s.previewVoxel.update(latest.current.voxelSection);s.previewVoxel.mesh.visible=false;s.data.add(s.previewVoxel.mesh);},2000);
+  const timer=setTimeout(()=>{if(!s?.voxel||s.animation||s.grid!==grid||s.previewVoxel||!resources)return;s.previewVoxel=createVoxelField(resources,s.drawSamples,grid,true);s.previewVoxel.highlight(latest.current.schemeHighlights.flatMap(h=>h.blockIds));s.previewVoxel.update(latest.current.voxelSection);s.previewVoxel.mesh.visible=false;s.data.add(s.previewVoxel.mesh);},2000);
   return()=>clearTimeout(timer);
  },[props.voxelSection.enabled,props.arrangement,props.samples,props.space,props.variance,resources]);
  useEffect(()=>{const s=state.current;if(!s||!props.focus)return;
@@ -108,7 +119,7 @@ export const Scene=memo(function Scene(props:Props){
      s.snapshot=after;s.grid=grid;s.cells=grid.cells;s.current=grid.cells;s.drawSamples=samples;s.hasAnimated=samples.some(p=>resources.animatedIds.has(p.block.id));
      const field=prepared||createVoxelField(resources,samples,grid);s.preparedField=null;if(!prepared||preparedSection!==latest.current.voxelSection)field.update({...latest.current.voxelSection,enabled:grid.mode!=='spaced'&&latest.current.voxelSection.enabled});field.select(latest.current.selected);
      s.field=field;s.mesh=field.mesh;s.data.add(field.mesh);if(grid.mode!=='spaced')s.voxel=field;
-     s.dirty=true;s.firstFramePending=true;latest.current.onVoxelData(grid.mode==='spaced'?null:grid);
+     s.rebuildSchemes();s.dirty=true;s.firstFramePending=true;latest.current.onVoxelData(grid.mode==='spaced'?null:grid);
      host.current!.dataset.motionProgress='1';host.current!.dataset.motionActors='0';setMotion('');
     };
     if(!animate||!plan?.changed){install();return;}
@@ -117,7 +128,7 @@ export const Scene=memo(function Scene(props:Props){
     field.apply(0,latest.current.voxelSection);field.select(latest.current.selected);
     dispose(s.data);s.data.clear();s.voxel=null;s.previewVoxel=null;s.selection=null;
     s.field=field;s.mesh=field.mesh;s.data.add(field.mesh);s.drawSamples=[...before.samples,...samples];s.hasAnimated=s.drawSamples.some((p:Sample)=>resources.animatedIds.has(p.block.id));s.dirty=true;
-    s.animation={field,started:performance.now(),finish:install};
+    s.schemeOverlay.visible=false;s.animation={field,started:performance.now(),finish:install};
     const el=host.current!;el.dataset.motionPipeline=plan.denseFade?'representative-fade':'manhattan';el.dataset.motionDuration=String(MOTION_MS);el.dataset.motionActors=String(plan.actors.length);
     for(const kind of ['keep','enter','exit','clone'])el.dataset['motion'+kind[0].toUpperCase()+kind.slice(1)]=String(plan.actors.filter((a:any)=>a.kind===kind).length);
     setMotion('Moving blocks together…');
