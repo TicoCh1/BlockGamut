@@ -283,8 +283,23 @@ The public repository contains application code, runtime assets, build support, 
 
 ## Licensing
 
-BlockGamut's original application code and documentation are licensed under **GPL-3.0-or-later**, a copyleft license; see [LICENSE](LICENSE). Third-party components retain their supplied terms and notices in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [licenses/](licenses/).
+BlockGamut’s original code, build scripts, documentation and original component
+contributions distributed in **this repository** are licensed under
+**GPL-3.0-or-later**; see [LICENSE](LICENSE). This project grant does not license
+separate projects or override third-party copyright and license notices.
 
-Minecraft textures, models and related assets © Mojang / Microsoft. See [Minecraft asset copyright](licenses/MINECRAFT-ASSETS.md).
+| Contents | License scope |
+| --- | --- |
+| Original BlockGamut application, build support, documentation and component contributions | GPL-3.0-or-later. |
+| Incorporated third-party code and dependencies | Their retained licenses and attributions also apply; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [licenses/](licenses/). |
+| Minecraft textures, models, animations, GUI sprites and packed/incremental representations | **Excluded from the GPL grant.** Copyright Mojang / Microsoft; see [Minecraft asset copyright](licenses/MINECRAFT-ASSETS.md). |
 
-Oklab conversion and legacy-ID source attributions are retained in their source files and third-party notices. ShapeOfColour inspired the interaction and layout.
+The bundled component archive includes its editable source, API declarations,
+license notices and `build.mjs` for rebuilding the runtime. Third-party Apache,
+MIT and ISC notices remain intact. The complete unmodified GNU GPLv3 text is also
+available in [licenses/GPL-3.0.txt](licenses/GPL-3.0.txt).
+
+Oklab conversion and legacy-ID source attributions remain in their source files
+and third-party notices. These identify the origins of incorporated code;
+BlockGamut’s project license is defined by the root `LICENSE`.
+ShapeOfColour inspired the interaction and layout.

@@ -281,10 +281,22 @@ Fork 后，在仓库 Pages 设置中选择 **GitHub Actions** 作为来源。其
 
 公开仓库保留网站代码、运行资源、构建支持、许可证及图文 README。本地开发记录、私人配置、凭据、缓存和生成的构建目录不上传。
 
-## 许可与署名
+## 许可
 
-BlockGamut 的原始应用代码与文档采用 **GPL-3.0-or-later** copyleft 许可证，见 [LICENSE](LICENSE)。第三方组件保留其原有条款与署名，见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) 和 [licenses/](licenses/)。
+**本仓库**中 BlockGamut 的原创代码、构建脚本、文档及原创组件改动采用
+**GPL-3.0-or-later**，见 [LICENSE](LICENSE)。该授权针对本项目，不为其他独立项目
+授予许可，也不覆盖第三方原有的版权声明和许可证。
 
-Minecraft 材质、模型及相关资源 © Mojang / Microsoft。见 [Minecraft 资源版权](licenses/MINECRAFT-ASSETS.md)。
+| 内容 | 许可范围 |
+| --- | --- |
+| BlockGamut 的原创应用、构建支持、文档和组件改动 | GPL-3.0-or-later。 |
+| 实际引用的第三方代码和依赖 | 同时保留其原有许可证和署名，见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) 和 [licenses/](licenses/)。 |
+| Minecraft 材质、模型、动画、GUI 图标及其打包／增量表示 | **不纳入 GPL 授权。** 版权归 Mojang／Microsoft，见 [Minecraft 资源版权](licenses/MINECRAFT-ASSETS.md)。 |
 
-Oklab 转换与传统方块编号的来源署名保留在源文件和第三方说明中。交互和布局参考 ShapeOfColour。
+项目内的组件压缩包包含可编辑源码、接口声明、许可声明和用于重建运行代码的
+`build.mjs`。第三方 Apache、MIT、ISC 声明完整保留；完整且未经修改的 GNU GPLv3
+正文另见 [licenses/GPL-3.0.txt](licenses/GPL-3.0.txt)。
+
+Oklab 转换和旧版 ID 的来源署名保留在相应源码和第三方声明中，用于说明实际引用
+代码的来源。本项目的许可由根目录 `LICENSE` 定义。
+ShapeOfColour 提供了交互与布局参考。

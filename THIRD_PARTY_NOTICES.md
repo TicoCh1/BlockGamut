@@ -1,8 +1,10 @@
 # Third-party notices
 
-BlockGamut's original application source, build support and README are licensed
-under GPL-3.0-or-later; see the root `LICENSE`. Existing third-party notices and
-licenses remain applicable. Minecraft textures, models and related assets © Mojang / Microsoft.
+BlockGamut’s original code, build support, documentation and original component
+contributions distributed in this repository are licensed under GPL-3.0-or-later;
+see the root `LICENSE`. This grant applies to BlockGamut and retains the
+third-party terms and attributions below. Minecraft assets are excluded from the
+GPL grant. Minecraft textures, models and related assets © Mojang / Microsoft.
 
 - Oklab forward conversion: adapted from MineAgent's `palette/Oklab.java`,
   itself adapted from MoreScript OklabColor. Copyright (c) 2026 Tang;
@@ -11,10 +13,12 @@ licenses remain applicable. Minecraft textures, models and related assets © Moj
 - Oklab inverse conversion: Björn Ottosson,
   https://bottosson.github.io/posts/oklab/ (public domain / MIT).
 - Glass material files adapted from urbanfabric/app's Semantic Map frontend:
-  Apache-2.0. The upstream notice and license remain in the component archive
-  under `licenses/urbanfabric-Apache-2.0.txt`. The component archive retains its
-  original licensing; the application's GPL grant does not change those terms.
-  Development documentation, source maps and examples are omitted.
+  Apache-2.0. See `licenses/URBANFABRIC-APACHE-2.0.txt` and the preserved notice
+  in the component archive. Original component contributions and BlockGamut
+  modifications use GPL-3.0-or-later as part of this project; the Apache terms
+  still apply to the upstream material portions. The archive includes editable
+  component source, API declarations and `build.mjs`. Private development
+  documentation, source maps and examples are omitted.
 - React and ReactDOM: MIT; Three.js: MIT; Lucide: ISC. License texts are
   included in `licenses/` and retained by their installed npm packages.
 - Fuse.js 7.1.0 by Kiro Risk: Apache-2.0. See `licenses/FUSE.txt` and
