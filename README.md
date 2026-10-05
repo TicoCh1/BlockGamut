@@ -102,13 +102,13 @@ Two instances of the original FORM `<|>` slider thumb share one logarithmic trac
 
 ## Manage colour schemes
 
-Use **New scheme** on the lower centre bar. Each horizontal row is one scheme, with its own name, integer length (at least **3**), colour space and filters. New schemes inherit the current geometry selection and colour space, then remain independent of the explorer controls. The selected Minecraft release supplies every scheme's materials.
+Use **New scheme** on the lower centre bar. Each horizontal row is one scheme, with its own name, integer length (at least **3**), colour space, interpolation and filters. Edit the name, length, colour space and **Lerp / Slerp** directly on the row. The settings icon opens only block filters and variance filters. New schemes inherit the current geometry selection and colour space, then remain independent of the explorer controls. The selected Minecraft release supplies every scheme's materials.
 
 Drag the selected block's **title or model thumbnail in the right inspector** into a slot to make a pinned control point. A copy of the block and its name follows the pointer, and the destination slot highlights; Escape cancels the drag. Drop more blocks at any positions to create several interpolation segments. Alternatively, select a slot and use **Add selected block**; **Remove control point** unpins that slot. Clicking a filled slot displays its actual block in the inspector, including blocks outside the explorer's filters. The row also shows the selected slot's block name.
 
-Unpinned slots linearly interpolate between neighbouring control points in the scheme's colour space, then match the nearest eligible material in that space. HSV/HSL use the shortest hue arc; HSL bicone interpolates chroma. Outside the outermost control points the endpoint colour is held. The thin swatch below each cell shows the target colour; the thumbnail shows a three-dimensional preview of the matched Minecraft block. Technical blocks such as `minecraft:test_block` retain their original appearance and are identified by name and ID. With no eligible material, an interpolated slot stays empty. Control points retain their exact block IDs even when excluded by that scheme's filters or unavailable in another release.
+Unpinned slots interpolate between neighbouring control points in the scheme's colour space, then match the nearest eligible material in that space. **Lerp** is the default: it blends channel values linearly, using the shortest hue arc in HSV/HSL and chroma in HSL bicone. **Slerp** follows the shortest spherical arc in the atlas's fixed coordinate metric, around that space's black origin, while blending distance from black linearly. Hue spaces use their cylinder or bicone geometry. Output colours are clipped to valid channel/RGB bounds. Exact control points remain unchanged in either mode. Outside the outermost control points the endpoint colour is held. The thin swatch below each cell shows the target colour; the thumbnail shows a three-dimensional preview of the matched Minecraft block. Technical blocks such as `minecraft:test_block` retain their original appearance and are identified by name and ID. With no eligible material, an interpolated slot stays empty. Control points retain their exact block IDs even when excluded by that scheme's filters or unavailable in another release.
 
-**Scheme settings** changes the name, length, colour space, geometry categories, search, collection/blacklist choice, variance range, opacity and biome tint inclusion. Variance bounds are remembered separately for each scheme's colour spaces. Resizing distributes control points proportionally across the new integer slots; if several land on one slot, the later point is retained. Rename, remove, collapse or add schemes as needed. Schemes are saved in this browser and survive reloads; collection and blacklist entries remain session-based.
+**Scheme filters** contains geometry categories, search, collection/blacklist choice, variance range, opacity and biome tint inclusion. Variance bounds are remembered separately for each scheme's colour spaces. Resizing distributes control points proportionally across the new integer slots; if several land on one slot, the later point is retained. Rename, remove, collapse or add schemes as needed. Schemes are saved in this browser and survive reloads; collection and blacklist entries remain session-based.
 
 On narrow screens, the lower bar opens the scheme manager in a scrollable glass dialog, keeping the inspector accessible when the dialog is closed. The slot/add button provides the same control-point editing without dragging.
 
@@ -116,7 +116,7 @@ On narrow screens, the lower bar opens the scheme manager in a scrollable glass 
 
 ![The dragged block preview follows the pointer](media/screenshots/42-block-drag-preview.jpg)
 
-![Scheme-specific colour space and filters](media/screenshots/39-scheme-settings.jpg)
+![Scheme-specific block and variance filters](media/screenshots/39-scheme-settings.jpg)
 
 ## Inspect native models and build a collection
 

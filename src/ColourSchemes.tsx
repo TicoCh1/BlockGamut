@@ -12,7 +12,7 @@ import type {Block,Space} from './types';
 import type {ModelResources} from './useModels';
 
 interface SchemeFilters {categories:string[];query:string;opaque:boolean;tinted:boolean;list:string;varianceMin:number;varianceMax:number}
-interface Scheme {id:string;name:string;length:number;anchors:Record<number,string>;space:Space;filters:SchemeFilters;ranges:Partial<Record<Space,[number,number]>>}
+interface Scheme {id:string;name:string;length:number;anchors:Record<number,string>;space:Space;interpolation?:'lerp'|'slerp';filters:SchemeFilters;ranges:Partial<Record<Space,[number,number]>>}
 
 
 function SchemeRow({scheme,blocks,resources,collection,blacklist,selected,onChange,onDelete,onSettings,onPick}:{scheme:Scheme;blocks:Block[];resources:ModelResources|null;collection:string[];blacklist:string[];selected:Block|undefined;onChange:(s:Scheme)=>void;onDelete:()=>void;onSettings:()=>void;onPick:(id:string)=>void}){
@@ -22,7 +22,13 @@ function SchemeRow({scheme,blocks,resources,collection,blacklist,selected,onChan
  const anchor=(index:number,id:string)=>onChange({...scheme,anchors:{...scheme.anchors,[index]:id}});
  const addSelected=()=>{if(selected)anchor(slot,selected.id);};
  return view(<div className="scheme-row">
-  <div className="scheme-row-heading"><span>{scheme.name}</span><small>{spaces.find(s=>s.value===scheme.space)!.label} · {scheme.length}</small><GlassButton aria-label="Scheme settings" onClick={onSettings}><Settings2 size={13}/></GlassButton><GlassButton aria-label="Delete scheme" onClick={onDelete}><X size={13}/></GlassButton></div>
+  <div className="scheme-row-heading">
+   <GlassInput className="scheme-name" label="Scheme name" value={scheme.name} onChange={e=>onChange({...scheme,name:e.target.value})}/>
+   <GlassInput className="scheme-length" key={scheme.id+':'+scheme.length} label="Length" type="number" min={3} step={1} defaultValue={scheme.length} onKeyDown={e=>{if(e.key==='Enter')e.currentTarget.blur();}} onBlur={e=>{const length=schemeLength(e.target.value);e.target.value=String(length);onChange({...scheme,length,anchors:resizeAnchors(scheme.anchors,scheme.length,length)});}}/>
+   <div className="scheme-space"><GlassSelect label="Scheme colour space" value={scheme.space} options={spaces.map(({value,label})=>({value,label}))} onChange={value=>{const range=scheme.ranges[value as Space]||[0,Infinity];onChange({...scheme,space:value as Space,filters:{...scheme.filters,varianceMin:range[0],varianceMax:range[1]}});}}/></div>
+   <div className="scheme-method"><GlassSelect label="Interpolation" value={scheme.interpolation||'lerp'} options={[{value:'lerp',label:'Lerp'},{value:'slerp',label:'Slerp'}]} onChange={value=>onChange({...scheme,interpolation:value as 'lerp'|'slerp'})}/></div>
+   <div className="scheme-row-buttons"><GlassButton aria-label="Scheme filters" onClick={onSettings}><Settings2 size={13}/></GlassButton><GlassButton aria-label="Delete scheme" onClick={onDelete}><X size={13}/></GlassButton></div>
+  </div>
   <GlassScrollArea label="Scheme blocks" height={78} viewportClassName="scheme-cells-viewport"><div className="scheme-cells">
    {cells.map(cell=><div key={cell.index} className="scheme-cell" data-scheme-id={scheme.id} data-scheme-slot={cell.index} data-anchor={cell.anchor} data-selected={slot===cell.index} data-drop={hover===cell.index} onDragOver={e=>{if(e.dataTransfer.types.includes(schemeMime)||e.dataTransfer.types.includes('text/plain')){e.preventDefault();e.dataTransfer.dropEffect='copy';setHover(cell.index);}}} onDragLeave={()=>setHover(null)} onDrop={e=>{e.preventDefault();setHover(null);const id=e.dataTransfer.getData(schemeMime)||e.dataTransfer.getData('text/plain');if(blocks.some(b=>b.id===id))anchor(cell.index,id);}}>
     <GlassButton aria-label={`${t('Scheme slot')} ${cell.index+1}: ${cell.id||cell.block?.id||'minecraft:air'}`} title={cell.block?`${cell.block.name} · ${cell.block.id}\n${cell.anchor?t('Control point'):t('Interpolated material')}`:cell.id?`${cell.id} · ${t('Unavailable in this release')}`:t('Drop a block here')} onClick={()=>{setSlot(cell.index);if(cell.block)onPick(cell.block.id);}}>{cell.block?<BlockThumbnail id={cell.block.id} resources={resources}/>:<span aria-hidden="true">+</span>}{cell.anchor&&<Pin className="scheme-pin" size={9}/>}</GlassButton>
@@ -41,7 +47,7 @@ export function ColourSchemes({blocks,resources,selected,space,categories,collec
  useEffect(()=>{const drop=(event:Event)=>{const {scheme,slot,block}=(event as CustomEvent).detail;setSchemes(list=>list.map(s=>s.id===scheme?{...s,anchors:{...s.anchors,[slot]:block}}:s));};document.addEventListener('block-gamut-scheme-drop',drop);return()=>document.removeEventListener('block-gamut-scheme-drop',drop);},[]);
  const change=(scheme:Scheme)=>setSchemes(list=>list.map(s=>s.id===scheme.id?scheme:s));
  const current=schemes.find(s=>s.id===settings);
- const add=()=>{setExpanded(true);if(window.matchMedia('(max-width:760px)').matches)setMobileOpen(true);setSchemes(list=>[...list,{id:crypto.randomUUID(),name:`${t('Scheme')} ${list.length+1}`,length:7,anchors:{},space,filters:{categories:[...categories],query:'',opaque:false,tinted:true,list:'all',varianceMin:0,varianceMax:Infinity},ranges:{}}]);};
+ const add=()=>{setExpanded(true);if(window.matchMedia('(max-width:760px)').matches)setMobileOpen(true);setSchemes(list=>[...list,{id:crypto.randomUUID(),name:`${t('Scheme')} ${list.length+1}`,length:7,anchors:{},space,interpolation:'lerp',filters:{categories:[...categories],query:'',opaque:false,tinted:true,list:'all',varianceMin:0,varianceMax:Infinity},ranges:{}}]);};
  const maximum=current?Math.max(...blocks.map(b=>materialVariance(b,current.space)||0)):0;
  const filter=(patch:Partial<SchemeFilters>)=>current&&change({...current,filters:{...current.filters,...patch}});
  return view(<>
@@ -51,11 +57,8 @@ export function ColourSchemes({blocks,resources,selected,space,categories,collec
    {expanded&&schemes.length>0&&<GlassScrollArea className="scheme-desktop-rows" label="Colour schemes" maxHeight="var(--schemes-height)"><div className="scheme-rows">{schemes.map(s=><SchemeRow key={s.id} scheme={s} blocks={blocks} resources={resources} collection={collection} blacklist={blacklist} selected={selected} onChange={change} onDelete={()=>setSchemes(v=>v.filter(x=>x.id!==s.id))} onSettings={()=>setSettings(s.id)} onPick={onPick}/>)}</div><p className="scheme-hint">Drag the selected block into a slot. Pinned slots are control points.</p></GlassScrollArea>}
   </GlassPanel>
   <GlassDialog title="Colour schemes" open={mobileOpen} onOpenChange={setMobileOpen} closeLabel="Close colour schemes"><GlassScrollArea label="Colour schemes" maxHeight="55dvh"><div className="scheme-rows">{schemes.map(s=><SchemeRow key={s.id} scheme={s} blocks={blocks} resources={resources} collection={collection} blacklist={blacklist} selected={selected} onChange={change} onDelete={()=>setSchemes(v=>v.filter(x=>x.id!==s.id))} onSettings={()=>{setMobileOpen(false);setSettings(s.id);}} onPick={onPick}/>)}</div><GlassButton onClick={add}>New scheme</GlassButton></GlassScrollArea></GlassDialog>
-  <GlassDialog title="Scheme settings" open={!!current} onOpenChange={open=>{if(!open){setSettings(null);if(window.matchMedia('(max-width:760px)').matches)setMobileOpen(true);}}} closeLabel="Close scheme settings" className="scheme-settings">
-   {current&&<GlassScrollArea label="Scheme settings" maxHeight="55dvh"><div className="scheme-settings-content">
-    <GlassInput label="Scheme name" value={current.name} onChange={e=>change({...current,name:e.target.value})}/>
-    <GlassInput key={current.id+':'+current.length} label="Length" type="number" min={3} step={1} defaultValue={current.length} hint="Integer · at least 3 blocks" onKeyDown={e=>{if(e.key==='Enter')e.currentTarget.blur();}} onBlur={e=>{const length=schemeLength(e.target.value);e.target.value=String(length);change({...current,length,anchors:resizeAnchors(current.anchors,current.length,length)});}}/>
-    <GlassSelect label="Scheme colour space" value={current.space} options={spaces.map(({value,label})=>({value,label}))} onChange={value=>{const range=current.ranges[value as Space]||[0,Infinity];change({...current,space:value as Space,filters:{...current.filters,varianceMin:range[0],varianceMax:range[1]}});}}/>
+  <GlassDialog title="Scheme filters" open={!!current} onOpenChange={open=>{if(!open){setSettings(null);if(window.matchMedia('(max-width:760px)').matches)setMobileOpen(true);}}} closeLabel="Close scheme filters" className="scheme-settings">
+   {current&&<GlassScrollArea label="Scheme filters" maxHeight="55dvh"><div className="scheme-settings-content">
     <GlassInput label="Search blocks" type="search" value={current.filters.query} onChange={e=>filter({query:e.target.value})}/>
     <GeometryFilter value={current.filters.categories} onChange={categories=>filter({categories})}/>
     <GlassSelect label="Block list" value={current.filters.list} options={[{value:'all',label:'All blocks'},{value:'collection',label:'My collection'},{value:'blacklist',label:'My blacklist'}]} onChange={list=>filter({list})}/>
