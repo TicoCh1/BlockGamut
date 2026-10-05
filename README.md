@@ -6,7 +6,7 @@ BlockGamut is an interactive Minecraft Java block colour and material atlas. It 
 
 It runs entirely in the browser. No Minecraft installation, account, backend or uploaded world is needed. English is the default; Simplified Chinese is also available.
 
-This is an independent fan project by [TicoCh1](https://github.com/TicoCh1). Mojang and Microsoft do not produce, approve or endorse it. Minecraft assets remain subject to their owners' terms; see [Licensing](#licensing).
+Created by [TicoCh1](https://github.com/TicoCh1). Minecraft textures © Mojang / Microsoft.
 
 ![BlockGamut overview with the complete control panel and block inspector](media/screenshots/01-overview.jpg)
 
@@ -148,6 +148,6 @@ The public repository contains application code, runtime assets, build support, 
 
 BlockGamut's original application code and documentation are licensed under **GPL-3.0-or-later**, a copyleft license; see [LICENSE](LICENSE). Third-party components retain their supplied terms and notices in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [licenses/](licenses/).
 
-Minecraft names, textures, models and related assets belong to Mojang/Microsoft. The application's GPL license does not grant rights to those assets. Their use remains governed by the [Minecraft EULA](https://www.minecraft.net/en-us/eula) and [Minecraft Usage Guidelines](https://www.minecraft.net/en-us/usage-guidelines); see [Minecraft asset terms](licenses/MINECRAFT-ASSETS.md). The project is independently published and does not claim official certification or endorsement.
+Minecraft textures, models and related assets © Mojang / Microsoft. See [Minecraft asset copyright](licenses/MINECRAFT-ASSETS.md).
 
 Oklab conversion and legacy-ID source attributions are retained in their source files and third-party notices. ShapeOfColour inspired the interaction and layout.

@@ -2,8 +2,7 @@
 
 BlockGamut's original application source, build support and README are licensed
 under GPL-3.0-or-later; see the root `LICENSE`. Existing third-party notices and
-licenses remain applicable. This grant does not override third-party copyrights
-or turn Minecraft assets into GPL-licensed software.
+licenses remain applicable. Minecraft textures, models and related assets © Mojang / Microsoft.
 
 - Oklab forward conversion: adapted from MineAgent's `palette/Oklab.java`,
   itself adapted from MoreScript OklabColor. Copyright (c) 2026 Tang;
@@ -22,12 +21,11 @@ or turn Minecraft assets into GPL-licensed software.
 - Fuse.js 7.1.0 by Kiro Risk: Apache-2.0. See `licenses/FUSE.txt` and
   https://github.com/krisk/Fuse.
 - Minecraft names, model definitions, dimensions, texture data and animation
-  frames: Mojang/Microsoft, from official Java releases 1.7.2 through 26.3.
+  frames: © Mojang / Microsoft, from official Java releases 1.7.2 through 26.3.
   Identical texture pixels are stored once; release changes use incremental
-  catalog, model and animation records. Application and
-  dependency licenses do not relicense these assets. Models show representative
+  catalog, model and animation records. Models show representative
   placed states, including static previews for special renderers.
-  See `licenses/MINECRAFT-ASSETS.md`, the Minecraft EULA and Usage Guidelines.
+  See `licenses/MINECRAFT-ASSETS.md`.
 - Palette colours and surface statistics derive from each selected release's
   original Minecraft face texels, weighted by face area and transparency.
 - Java legacy block ID aliases: derived from EngineHub WorldEdit's legacy
