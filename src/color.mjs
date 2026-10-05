@@ -27,16 +27,16 @@ export function sampleColor(block, mode) {
   if(block.renderStatus==='invisible')return null;
   return mode==='average' ? block.hex : block.faces[mode] || block.hex;
 }
-export function materialVariance(block) {
- const channels=block.surface?.channelVariance?.oklab||block.surface?.variance;
+export function materialVariance(block,space='oklab') {
+ const channels=block.surface?.channelVariance?.[space]||(space==='oklab'?block.surface?.variance:null);
  return channels?channels.reduce((sum,value)=>sum+value,0):null;
 }
-/** @param {any[]} blocks @param {{category?:string,query?:string,opaque?:boolean,tinted?:boolean,custom?:string[]|null,blacklist?:string[],varianceMin?:number,varianceMax?:number}} filters */
-export function filterBlocks(blocks, {category='all',query='',opaque=false,tinted=true,custom=null,blacklist=[],varianceMin=0,varianceMax=Infinity}) {
+/** @param {any[]} blocks @param {{category?:string,query?:string,opaque?:boolean,tinted?:boolean,custom?:string[]|null,blacklist?:string[],varianceMin?:number,varianceMax?:number,space?:string}} filters */
+export function filterBlocks(blocks, {category='all',query='',opaque=false,tinted=true,custom=null,blacklist=[],varianceMin=0,varianceMax=Infinity,space='oklab'}) {
  return searchBlocks(blocks,query).filter(b=>(category==='all'||(category==='cubes'?b.category.startsWith('full_cube'):(b.geometryClass||b.category)===category))
     && (!opaque||(b.alpha!==null&&b.alpha>=.999)) && (tinted||b.tint==='none')
     && (!custom||custom.includes(b.id)) && !blacklist.includes(b.id)
-    && ((varianceMin===0&&varianceMax===Infinity)||(materialVariance(b)!==null&&materialVariance(b)>=varianceMin&&materialVariance(b)<=varianceMax)));
+    && ((varianceMin===0&&varianceMax===Infinity)||(materialVariance(b,space)!==null&&materialVariance(b,space)>=varianceMin&&materialVariance(b,space)<=varianceMax)));
 }
 export function samplesFor(blocks, mode='average') {
   return blocks.flatMap(block=>{

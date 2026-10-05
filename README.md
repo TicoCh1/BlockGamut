@@ -28,7 +28,7 @@ Choose **Coordinate space** to compare perceptual lightness, RGB channels or hue
 
 ### Material variance
 
-Enable **Material variance** in any colour space to compare texture variation instead of average colour. Statistics use original unlit texture pixels, weighted by visible face area and alpha. The axes use fixed logarithmic scales, including a finite floor for zero; inspector values remain the original, unscaled population variances. Hue variance uses shortest-arc distances and excludes achromatic pixels.
+Enable **Material variance** in any colour space to compare texture variation instead of average colour. Statistics use **six 16×16 material planes (1,536 pixels)** derived from the original unlit UV regions. Small regions repeat to fill the plane; larger regions use BOX downsampling. Unique regions in each direction share one plane, and missing directions repeat available material planes. Transparency contributes no colour weight. Model size, face area and duplicate geometry do not increase statistical weight. The displayed textures and native model dimensions keep their original appearance. The axes use fixed logarithmic scales, including a finite floor for zero; inspector values remain the original, unscaled population variances. Hue variance uses shortest-arc distances and excludes achromatic pixels.
 
 ![Material variance arranged on logarithmic axes](media/screenshots/11-variance.jpg)
 
@@ -62,7 +62,7 @@ Drag the window by its header, or focus the drag handle and use arrow keys; Shif
 
 ## Filter materials and historical releases
 
-The **Filters** area combines Minecraft version, search, geometry class, colour source, material grouping, opacity and biome-tint inclusion.
+The **Filters** area combines Minecraft version, search, variance range, geometry class, colour source, material grouping, opacity and biome-tint inclusion.
 
 The bundled dataset covers **84 Java release entries from 1.7.2 to 26.3** in Mojang's official version manifest; snapshot entries are excluded. Releases without changes to the represented materials share **31 groups**, labelled with the earliest release and a `+` when applicable. For example, **1.7.2+** covers 1.7.2–1.7.10; the filter shows the full range. The latest bundled release is selected initially. Future releases require a dataset update.
 
@@ -86,7 +86,7 @@ The controls stay visible. The separate block-library entry and its former top-r
 
 ### Variance range
 
-The **Variance range** filter uses total Oklab population variance, `Var(L) + Var(a) + Var(b)`, from the original whole-model texture pixels. It works in average-colour and material-variance views, independently of the current colour space and face selector. Both endpoints are inclusive.
+The **Variance range** filter sums the three channel population variances of the **currently selected colour space**. For Oklab this is `Var(L) + Var(a) + Var(b)`; for sRGB it is `Var(R) + Var(G) + Var(B)`. Its label, values and range change with the colour space, with separate bounds remembered for each space during the page session. The filter and variance axes use the same standardized 1,536-pixel material statistics. It works in average-colour and material-variance views, independently of the face selector. Both endpoints are inclusive.
 
 The two `‹│` / `│›` handles share one logarithmic track. The endpoint readouts show actual variance values. Drag and release to apply; arrow keys adjust a handle immediately, Shift uses larger steps, Page Up/Down move farther, and Home/End move to a limit. The handles cannot cross and remain separately reachable when they meet. The reset arrow restores the complete range.
 
@@ -130,7 +130,7 @@ Panels adapt to the viewport. Longer content scrolls inside its panel; the glass
 
 ## Data and limitations
 
-Release assets are incremental: original texture pixels are stored once in a shared atlas, and each material group records changed catalog entries, models and animation metadata against its predecessor. The bundled version assets occupy approximately **12.7 MiB**, with 3,569 unique texture tiles in seven atlas pages. Unchanged releases do not carry a complete copy of the textures. The runtime caches reconstructed release data.
+Release assets are incremental: original texture pixels are stored once in a shared atlas, and each material group records changed catalog entries, models and animation metadata against its predecessor. The bundled version assets contain 3,569 unique texture tiles in seven atlas pages. Unchanged releases do not carry a complete copy of the textures. The runtime caches reconstructed release data.
 
 Colour and variance statistics describe the source texture pixels rather than in-game lighting. The five-colour summary is only a visual summary, not the input to variance calculations. One representative placed state is shown per block. Special renderers use closed/rest poses, default skins and plain banners or pots. World lighting, particles, moving block entities and custom block data are not reproduced. Invisible blocks remain in the catalog without invented surface colours; air types and item frames are excluded from the placed-block atlas.
 
