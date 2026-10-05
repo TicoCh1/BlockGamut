@@ -179,3 +179,36 @@ html [data-form-glass-root] .glass-select-option{height:auto;min-height:var(--se
 @media(max-width:600px){.control-panel{top:120px;width:180px;max-height:calc(100dvh - 190px)}.control-panel .panel-content{padding:12px}.empty-scene{left:205px;right:8px}}
 
 .texture canvas{width:100%;height:100%;image-rendering:pixelated;display:block}
+.project-notice{position:absolute;top:75px;left:30px;right:30px;z-index:30;display:flex;justify-content:space-between;gap:12px;margin:0;color:#aeb4be;font-size:9px;line-height:1.6}
+.project-notice a{color:#e9ebef;text-decoration:underline;text-underline-offset:3px}
+.project-notice>span:last-child{white-space:nowrap}
+@media(max-width:900px){.project-notice{left:20px;right:20px;font-size:8px}.project-notice>span:first-child{max-width:65%}}
+@media(max-width:600px){.project-notice{top:68px;left:16px;right:16px;display:block;font-size:7px}.project-notice>span{display:block;max-width:none!important}.project-notice>span+span{margin-top:3px}.control-panel{top:132px;max-height:calc(100dvh - 206px)}.view-caption{display:none}}
+
+/* Glass feathers stay outside the shell; real content owns the scrollport. */
+.explorer{--controls-top:106px;--panel-bottom:86px;--inspector-top:165px}
+.explorer .control-panel{top:var(--controls-top);max-height:none;overflow:visible}
+.explorer .control-panel .panel-content{box-sizing:border-box;padding-bottom:32px;max-height:calc(100dvh - var(--controls-top) - var(--panel-bottom));overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable;overscroll-behavior:contain}
+.explorer .block-inspector{bottom:var(--panel-bottom);padding:0!important;max-height:none;overflow:visible}
+.inspector-content{display:flow-root;box-sizing:border-box;padding:16px 16px 32px;max-height:calc(100dvh - var(--inspector-top) - var(--panel-bottom));overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable;overscroll-behavior:contain}
+.inspector-content>.micro{margin:7px 0}
+.section-window-position .voxel-section-window{max-height:none;overflow:visible}
+.section-window-body{max-height:calc(100dvh - var(--section-top,8px) - 130px);overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable;overscroll-behavior:contain}
+@media(max-width:900px){.explorer{--controls-top:108px;--inspector-top:156px}.inspector-content{padding:14px 14px 32px}}
+@media(max-width:600px){.explorer{--controls-top:132px;--panel-bottom:80px;--inspector-top:160px}.explorer .control-panel .panel-content{padding-bottom:32px}.inspector-content{padding:12px 12px 32px}.inspector-content>.micro{display:none}}
+/* Preserve complete rows at laptop heights; longer content still scrolls. */
+@media(max-height:800px) and (min-width:601px){
+  .explorer .control-panel .panel-content{gap:1px;padding:12px 16px 32px}
+  .control-panel .divider{margin-top:2px;padding-top:6px}
+  .control-panel .glass-select-trigger{min-height:30px;padding:5px 10px!important}
+  .control-panel .palette-counts{font-size:9px;line-height:12px}
+  .control-panel .palette-counts .muted{font-size:8px}
+  .inspector-content{padding:12px 12px 32px}
+  .inspector-content .turntable-viewport{height:88px}
+  .inspector-content .turntable{margin:4px 0}
+  .inspector-content .block-id{margin-top:8px}
+  .inspector-content .copy-count{margin:5px 0}
+  .inspector-content>.micro{display:none}
+  .inspector-content .surface-mixture{margin:8px 0}
+  .inspector-content .lab-values{margin:7px 0}
+}

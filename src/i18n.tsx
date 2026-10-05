@@ -32,7 +32,7 @@ export function LocaleLabel({text,alternatives=[],translations}:{text:string;alt
 }
 export function LocaleProvider({children}:{children:ReactNode}){
  const [locale,setLocale]=useState<Locale>(()=>{try{return localStorage.getItem('block-gamut-language')==='zh-CN'?'zh-CN':'en';}catch{return 'en';}});
- useEffect(()=>{document.documentElement.lang=locale;document.title=locale==='zh-CN'?'方块之色 · MineAgent':'Shape of blocks · MineAgent';try{localStorage.setItem('block-gamut-language',locale);}catch{/* Storage may be disabled. */}},[locale]);
+ useEffect(()=>{document.documentElement.lang=locale;document.title=locale==='zh-CN'?'BlockGamut · 方块之色':'BlockGamut · Shape of blocks';try{localStorage.setItem('block-gamut-language',locale);}catch{/* Storage may be disabled. */}},[locale]);
  return <Context.Provider value={{locale,setLocale}}>{children}</Context.Provider>;
 }
 /** Localize declarative UI copy, including labels/options passed to FORM controls.

@@ -9,8 +9,14 @@
 !/tsconfig.json
 !/vite.config.ts
 !/THIRD_PARTY_NOTICES.md
+!/LICENSE
 !/src/
 !/public/
+!/media/
+/media/*
+!/media/screenshots/
+/media/screenshots/*
+!/media/screenshots/*.jpg
 !/licenses/
 !/scripts/
 /scripts/*
@@ -53,6 +59,7 @@ tests/
 *private*
 AGENTS.md
 README*
+!/README.md
 DEVELOPMENT*
 __pycache__/
 *.pyc
