@@ -1,7 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import {BlockThumbnail} from './BlockThumbnail';
-import {schemeWheelCandidates,stepSchemeWheel} from './schemeWheelCandidates.mjs';
+import {schemeWheelSearch,stepSchemeWheel} from './schemeWheelCandidates.mjs';
 import {useLocale} from './i18n';
 import type {Block} from './types';
 import type {ModelResources} from './useModels';
@@ -16,38 +16,38 @@ export function useSchemeWheel({scheme,cells,blocks,collection,blacklist,onChoos
  const dismiss=useRef(()=>{});
  useEffect(()=>{
   const row=root.current!,desktop=window.matchMedia('(min-width:761px) and (hover:hover) and (pointer:fine)');
-  let lastStep=0,active:HTMLElement|null=null,cache:{key:string;blocks:Block[];catalog:Block[];collection:string[];blacklist:string[]}|null=null;
+  let lastStep=0,active:HTMLElement|null=null,cache:{key:string;search:ReturnType<typeof schemeWheelSearch>;catalog:Block[];collection:string[];blacklist:string[]}|null=null;
   const close=()=>{setPreview(null);active=null;cache=null;lastStep=0;};
   dismiss.current=close;
   const candidates=(target:HTMLElement)=>{
    const state=latest.current,index=Number(target.dataset.schemeSlot),cell=state.cells[index];
    if(cell.anchor||!cell.block||!state.cells[index-1]?.block||!state.cells[index+1]?.block)return null;
    const key=JSON.stringify([index,state.scheme.space,state.scheme.interpolation,state.scheme.filters,state.cells.filter(c=>c.index!==index).map(c=>c.id||c.block?.id)]);
-   if(!cache||cache.key!==key||cache.catalog!==state.blocks||cache.collection!==state.collection||cache.blacklist!==state.blacklist)cache={key,blocks:schemeWheelCandidates(state.scheme,index,state.blocks,{collection:state.collection,blacklist:state.blacklist},state.cells),catalog:state.blocks,collection:state.collection,blacklist:state.blacklist};
-   return cache.blocks.length?{state,index,cell,blocks:cache.blocks}:null;
+   if(!cache||cache.key!==key||cache.catalog!==state.blocks||cache.collection!==state.collection||cache.blacklist!==state.blacklist)cache={key,search:schemeWheelSearch(state.scheme,index,state.blocks,{collection:state.collection,blacklist:state.blacklist},state.cells),catalog:state.blocks,collection:state.collection,blacklist:state.blacklist};
+   return cache.search.blocks.length?{state,index,cell,search:cache.search}:null;
   };
-  const reveal=(target:HTMLElement,chosen:Block,blocks:Block[])=>{
+  const reveal=(target:HTMLElement,chosen:Block,search:ReturnType<typeof schemeWheelSearch>)=>{
    active=target;
-   const position=blocks.findIndex(b=>b.id===chosen.id),rect=target.querySelector('button')!.getBoundingClientRect();
-   setPreview({blocks:Array.from({length:5},(_,i)=>i===2?chosen:blocks[position+i-2]||null),left:Math.max(8,Math.min(innerWidth-64,rect.left+rect.width/2-28)),top:Math.max(8,Math.min(innerHeight-236,rect.top+rect.height/2-114))});
+   const {index,insertion}=search.locate(chosen),rect=target.querySelector('button')!.getBoundingClientRect();
+   setPreview({blocks:Array.from({length:5},(_,i)=>i===2?chosen:search.blocks[index>=0?index+i-2:insertion+i-2-(i>2?1:0)]||null),left:Math.max(8,Math.min(innerWidth-64,rect.left+rect.width/2-28)),top:Math.max(8,Math.min(innerHeight-236,rect.top+rect.height/2-114))});
   };
   const hover=(event:PointerEvent)=>{
    if(!desktop.matches||event.pointerType==='touch')return;
    const target=(event.target as Element).closest<HTMLElement>('.scheme-cell');
    if(target===active)return;
    const options=target&&candidates(target);
-   if(options)reveal(target!,options.cell.block,options.blocks);else close();
+   if(options)reveal(target!,options.cell.block,options.search);else close();
   };
   const wheel=(event:WheelEvent)=>{
    if(!desktop.matches||event.ctrlKey||!event.deltaY||Math.abs(event.deltaX)>Math.abs(event.deltaY))return;
    const target=(event.target as Element).closest<HTMLElement>('.scheme-cell');if(!target)return;
    const options=candidates(target);if(!options)return;
-   const {state,index,cell,blocks}=options;
+   const {state,index,cell,search}=options;
    event.preventDefault();event.stopPropagation();
    // A mouse detent responds immediately; trackpad bursts advance at most every 80ms.
    const now=performance.now();let chosen=cell.block;
-   if(active!==target||now-lastStep>=80){chosen=stepSchemeWheel(blocks,cell.block.id,event.deltaY>0?1:-1)!;lastStep=now;if(chosen.id!==cell.block.id)state.onChoose(index,chosen.id);}
-   reveal(target,chosen,blocks);
+   if(active!==target||now-lastStep>=80){chosen=stepSchemeWheel(search.blocks,cell.block.id,event.deltaY>0?1:-1,search.locate(cell.block).insertion)||cell.block;lastStep=now;if(chosen.id!==cell.block.id)state.onChoose(index,chosen.id);}
+   reveal(target,chosen,search);
   };
   row.addEventListener('wheel',wheel,{passive:false});row.addEventListener('pointerover',hover);row.addEventListener('pointermove',hover);row.addEventListener('pointerleave',close);row.addEventListener('pointerdown',close);row.addEventListener('scroll',close,true);desktop.addEventListener('change',close);
   window.addEventListener('resize',close);window.addEventListener('blur',close);
