@@ -133,7 +133,9 @@ Use **New scheme** on the lower centre bar. Each horizontal row is one scheme, w
 
 Drag the selected block's **title or model thumbnail in the right inspector** into a slot. Every filled slot, including generated materials, is draggable. Click a block to **pin** it; click again to **unpin** it. Drag within a row to reorder; the pin moves with its block. Drag into another row to move it there. Drag out of all rows and release to remove it, leaving an empty slot without changing the configured length. A model copy follows the pointer, destination slots highlight, and Escape cancels.
 
-![The dragged block preview follows the pointer](media/screenshots/42-block-drag-preview.jpg)
+| Move a block into a scheme | Drag out to remove |
+| --- | --- |
+| ![An existing block moves to the drop slot without duplication](media/screenshots/42-block-drag-preview.jpg) | ![Dragging a block out leaves an empty slot while keeping the scheme length](media/screenshots/57-scheme-remove.jpg) |
 
 Use the row's **refresh arrow** to fill unpinned slots with the current colour space, interpolation and filters. Pinned blocks remain exact. Edits stay visible until refresh; when there are no pins, refresh uses the first and last remaining blocks as temporary endpoints. Incoming inspector blocks start unpinned. Clicking a slot also displays its actual block in the inspector, including blocks outside the explorer filters.
 
@@ -145,9 +147,15 @@ Unpinned slots interpolate between neighbouring control points in the scheme's c
 
 Each block ID appears at most once per scheme, including pins. When eligible unused blocks run out, the remaining slots stay empty. Dropping a block already present in the destination row moves its existing occurrence and preserves its pin. Resizing keeps existing blocks unique and leaves new slots empty until refresh. Previously saved duplicate rows are deduplicated and refreshed when loaded. The pin badge uses Minecraft’s original cartography-table lock texture. Control points retain their exact block IDs even when excluded by that scheme's filters or unavailable in another release.
 
+![Distinct block IDs with Minecraft lock badges on both pinned endpoints](media/screenshots/53-unique-pins.jpg)
+
 ### Copy and export
 
 Use the **copy/export icon** on each row to preview and copy that scheme. Choose modern IDs (`minecraft:spruce_planks`), legacy numeric IDs (`5:1`), or HEX (`#725430`). The clipboard contains one value per line in slot order, with empty slots omitted. HEX uses the actual matched block’s average colour from the selected release. Legacy export uses the canonical ID and metadata alias; blocks with no legacy numeric ID are listed before copying and omitted from that format. The preview remains selectable for manual copying.
+
+| Modern Minecraft IDs | Actual block HEX colours |
+| --- | --- |
+| ![Namespaced Minecraft IDs in slot order](media/screenshots/54-export-modern.jpg) | ![Actual matched block colours exported as HEX](media/screenshots/55-export-hex.jpg) |
 
 ![Scheme export with legacy numeric IDs and explicitly omitted modern blocks](media/screenshots/46-scheme-export.jpg)
 
@@ -165,9 +173,13 @@ The **route/highlight icon** beside export toggles that row’s path and block o
 
 ![Scheme-specific block and variance filters](media/screenshots/39-scheme-settings.jpg)
 
+![Scheme-specific variance histogram and range, independent of the explorer colour space](media/screenshots/58-scheme-variance-filter.jpg)
+
 ### Mobile scheme manager
 
 On narrow screens, the lower bar opens the scheme manager in a scrollable glass dialog, keeping the inspector accessible when the dialog is closed. A draggable copy of the currently selected block is available at the top. The same tap-to-pin, drag, refresh, highlight and export controls work in that dialog; Enter or Space toggles a focused slot’s pin.
+
+<img src="media/screenshots/56-mobile-scheme-manager.jpg" alt="Mobile scheme manager with dragging, pins, interpolation, refresh, highlight and export controls" width="360">
 
 <img src="media/screenshots/49-export-mobile.jpg" alt="Scheme export on a narrow screen" width="360">
 

@@ -133,7 +133,9 @@ BlockGamut 是 Minecraft Java 版方块的三维色彩与材质探索器。它�
 
 将右侧检查器中的 **方块标题或模型缩略图** 拖入格子。所有非空格子，包括生成的材质，都可以拖动。点击方块将其 **pin 固定**，再次点击取消固定。同条内拖动调整顺序，pin 跟随方块移动；拖到另一方案可移动过去；拖出所有色带并松开会删除，留下空格并保持设置的长度。模型副本跟随鼠标，目标格子高亮，Escape 取消拖动。
 
-![方块预览跟随鼠标拖动](media/screenshots/42-block-drag-preview.jpg)
+| 拖入方案并移动已有方块 | 拖出删除 |
+| --- | --- |
+| ![已有方块移动到目标格子，不产生重复](media/screenshots/42-block-drag-preview.jpg) | ![拖出删除后保留空格和原方案长度](media/screenshots/57-scheme-remove.jpg) |
 
 点击每条方案的 **刷新箭头**，按当前色域、插值方式和筛选条件补全未固定格子，精确保留 pin。编辑结果保持到点击刷新；没有 pin 时，以现有首尾方块作为临时端点。检查器拖入的方块默认不固定。点击格子同时在检查器显示实际方块，即使它未通过主视图筛选。
 
@@ -145,9 +147,15 @@ BlockGamut 是 Minecraft Java 版方块的三维色彩与材质探索器。它�
 
 每条方案内同一方块 ID 至多出现一次，固定方块也不重复。未使用的候选不足时，其余格子留空。拖入此条已有方块时，移动原有方块并保留其固定状态；调整长度保持现有方块唯一，新格子在刷新后补全。载入旧的重复方案时，自动去重并刷新。固定标记使用 Minecraft 原版制图台的像素锁贴图。控制点保留原始方块 ID，即使该方案的筛选排除了它，或当前版本没有该方块。
 
+![不同方块 ID 与两端固定点的原版像素锁标记](media/screenshots/53-unique-pins.jpg)
+
 ### 复制与导出
 
 每条方案的 **复制／导出图标** 可打开预览并复制到剪贴板。可选现代 ID（`minecraft:spruce_planks`）、旧版数字 ID（`5:1`）或 HEX（`#725430`）。按格子顺序一行一个值，跳过空格；HEX 使用当前版本中实际匹配方块的平均色。旧版格式使用对应数字 ID 和元数据，没有旧版数字 ID 的方块会在复制前明确列出，并跳过这些方块。也可以直接选中预览文字手动复制。
+
+| 现代 Minecraft ID | 实际方块 HEX 颜色 |
+| --- | --- |
+| ![按格子顺序导出的命名空间 ID](media/screenshots/54-export-modern.jpg) | ![实际匹配方块的 HEX 颜色导出](media/screenshots/55-export-hex.jpg) |
 
 ![旧版数字 ID 导出及明确列出的未导出方块](media/screenshots/46-scheme-export.jpg)
 
@@ -165,9 +173,13 @@ BlockGamut 是 Minecraft Java 版方块的三维色彩与材质探索器。它�
 
 ![方案独立的方块与方差筛选](media/screenshots/39-scheme-settings.jpg)
 
+![与主视图色域独立的方案方差直方图与范围](media/screenshots/58-scheme-variance-filter.jpg)
+
 ### 手机配色管理
 
 窄屏下，通过底部横条打开可滚动的配色管理弹窗，关闭后仍可操作检查器。弹窗顶部可拖入当前选中方块；格子支持相同的点击固定、拖动、刷新、高亮和导出操作，键盘 Enter 或 Space 切换固定状态。
+
+<img src="media/screenshots/56-mobile-scheme-manager.jpg" alt="手机方案管理中的拖动、固定、插值、刷新、高亮和导出控件" width="360">
 
 <img src="media/screenshots/49-export-mobile.jpg" alt="窄屏下的方案导出" width="360">
 
