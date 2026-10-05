@@ -18,14 +18,15 @@ Created by [TicoCh1](https://github.com/TicoCh1). Minecraft textures © Mojang /
 2. Select a block in the scene, create a **New scheme** on the bottom bar, and drag the inspector’s block thumbnail into the first slot.
 3. Drag a second block into the last slot and click both endpoints to pin them. Set the length, colour space and **Lerp / Slerp** on the scheme row.
 4. Click **Refresh scheme** to fill the unpinned slots with distinct matching blocks. Drag to reorder, click to toggle a pin, or drag outside the rows to remove a block.
-5. Enable **Highlight scheme path** to see the route and matched blocks in 3D. Use **Export scheme** to preview and copy Minecraft IDs, legacy IDs or HEX colours.
+5. On desktop, hover an unpinned interior block and use the mouse wheel to browse alternatives along the scheme’s **Lerp/Slerp path**. The middle thumbnail in the vertical glass strip is the current block.
+6. Enable **Highlight scheme path** to see the route and matched blocks in 3D. Use **Export scheme** to preview and copy Minecraft IDs, legacy IDs or HEX colours.
 
 ## Recent features
 
 | Feature | How it works |
 | --- | --- |
 | [Editable colour schemes](#manage-colour-schemes) | Independent length, colour space, Lerp/Slerp and filters; direct dragging, pinning and refresh. |
-| [Desktop wheel browsing](#browse-alternatives-with-the-wheel) | Scroll an unpinned interior block to try eligible alternatives, with an immediate five-block glass preview. |
+| [Desktop wheel browsing](#browse-alternatives-with-the-wheel) | Browse nearest materials along the selected colour space’s Lerp/Slerp path, in path order, with an immediate five-block glass preview. |
 | [Unique blocks and Minecraft lock badges](#unique-blocks-and-pinned-points) | No repeated block ID within a scheme; pinned blocks use the original cartography-table lock texture. |
 | [Clipboard export](#copy-and-export) | Modern `minecraft:…` IDs, legacy `5:1` IDs or actual block HEX colours, in slot order. |
 | [3D path highlights](#highlight-interpolation-paths) | Lerp straight segments or Slerp arcs between displayed control points, with outlines around the actual chosen blocks. |
@@ -142,11 +143,25 @@ Use the row's **refresh arrow** to fill unpinned slots with the current colour s
 
 ### Browse alternatives with the wheel
 
-On desktop, hover a filled, unpinned interior slot and scroll **down for the next candidate, up for the previous**. Candidates must pass that scheme's filters and remain unused elsewhere in the row. The search follows the **Lerp/Slerp path between the immediately adjacent blocks**, in the scheme's own colour space. It samples the curve and keeps materials that are a nearest colour match somewhere along it, then orders them from the previous block towards the next. The endpoint colours also compete as references. Changing the colour space or Lerp/Slerp rebuilds that path and its candidates; being between the endpoints' projections alone is no longer enough. Only the hovered slot changes; its neighbours and pins stay put. The inspector, export and enabled highlight update with the chosen block.
+On desktop, hover a filled, unpinned interior slot. Scroll **down to move towards the next neighbouring block, up to move towards the previous**. Only the hovered slot is replaced; the inspector, clipboard export and enabled 3D highlights update with it. The two immediately adjacent blocks define the browsing path, whether or not those neighbours are pinned.
 
-Hovering immediately shows a narrow secondary glass strip centred on that slot: **two previous candidates, the current block and two next candidates**. It contains only model thumbnails; the middle block is selected without text, counters or a coloured highlight. It has no reveal or resize animation and reuses the candidate search while scrolling. At either end of the candidate list, scrolling stops and unavailable preview positions remain empty. If a manually chosen block is outside the current candidates, it remains in the centre and scrolling enters the list at its nearest position on the path. The strip stays visible until the pointer leaves the slot. Pinned blocks, end slots, empty slots and slots missing a neighbour do not browse. This feature is disabled on mobile and touch-only devices; ordinary panel scrolling stays available there.
+Candidates come from the **Lerp/Slerp path in that scheme’s selected colour space**. The curve is sampled, retaining materials that are a nearest colour match somewhere along it. Candidates are ordered by their nearest position on the path, from the previous neighbour to the next. The endpoint colours participate as distance references even when the scheme’s filters exclude them. Every candidate must pass the scheme’s geometry, search, list, opacity, tint and variance filters, have a visible colour sample, and remain unused elsewhere in that row. Changing the scheme’s colour space, interpolation, filters or neighbouring blocks rebuilds the candidates.
 
-![Immediate vertical glass preview with two alternatives above and below the current scheme block](media/screenshots/59-scheme-wheel.jpg)
+Hovering immediately shows a narrow secondary glass strip centred on the slot: **two previous candidates, the current block and two next candidates**. It contains only model thumbnails, with no text, counters, coloured selection highlight or appearance animation. Scrolling reuses the current candidate search.
+
+| Situation | Behaviour |
+| --- | --- |
+| Fewer than two candidates above or below | Unavailable positions remain empty; candidates are not repeated to fill the preview. |
+| First or last candidate reached | Scrolling stops at that boundary; it does not wrap. |
+| Current block was manually chosen and is outside the candidates | It stays in the centre until scrolling selects a candidate from its nearest position along the path. |
+| Pinned slot, end slot, empty slot, or current block or neighbour without a colour sample | Wheel browsing is disabled. |
+| No eligible candidate along the path | The slot stays unchanged. |
+| Pointer leaves the slot | The glass preview closes. |
+| Mobile or touch-only device | Wheel replacement and the preview are disabled; ordinary panel scrolling remains available. |
+
+The screenshot uses `minecraft:purpur_pillar` and `minecraft:waxed_exposed_cut_copper` as the neighbouring endpoints, with sRGB and Lerp. The preview follows the purple-to-copper transition, with Poplar Planks selected in the centre.
+
+![Path-ordered candidates between Purpur Pillar and Waxed Exposed Cut Copper, with Poplar Planks in the centre of the five-block glass preview](media/screenshots/59-scheme-wheel.jpg)
 
 ### Lerp and Slerp
 
