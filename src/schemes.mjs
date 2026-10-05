@@ -2,30 +2,49 @@ import {filterBlocks,hexRgb,rgbHex,fromLab,encode} from './color.mjs';
 import {coordinates,project,fromHSL,fromHSV,fromXYZ,white} from './spaces.mjs';
 
 export const schemeMime='application/x-block-gamut-block';
+/** A block may occupy one slot per row. Pins take precedence over loose tiles. */
+export function uniqueScheme(scheme){
+ const used=new Set(),anchors={};
+ for(const [index,id] of Object.entries(scheme.anchors).sort((a,b)=>Number(a[0])-Number(b[0]))){
+  if(Number(index)<scheme.length&&!used.has(id)){anchors[index]=id;used.add(id);}
+ }
+ const tiles=scheme.tiles?.map((id,index)=>{
+  if(anchors[index])return anchors[index];
+  if(!id||used.has(id))return null;
+  used.add(id);return id;
+ });
+ return {...scheme,anchors,tiles};
+}
 /** Edited slots stay put until refresh; pins retain their exact release IDs. */
 export function schemeCells(scheme,blocks,lists={}){
+ scheme=uniqueScheme(scheme);
  const generated=fillScheme(scheme,blocks,lists);
  if(!scheme.tiles)return generated;
  const byId=new Map(blocks.map(b=>[b.id,b]));
  return generated.map(cell=>{const id=scheme.anchors[cell.index]||scheme.tiles[cell.index],block=byId.get(id)||null;return {...cell,id,block,target:cell.block?.id===id?cell.target:block?.hex||null};});
 }
 export function toggleSchemePin(scheme,index,blocks,lists={}){
+ scheme=uniqueScheme(scheme);
  const cells=schemeCells(scheme,blocks,lists),anchors={...scheme.anchors};
  if(anchors[index])delete anchors[index];else if(cells[index].id||cells[index].block)anchors[index]=cells[index].id||cells[index].block.id;
  return {...scheme,anchors,tiles:cells.map(c=>c.id||c.block?.id||null)};
 }
 export function refreshScheme(scheme,blocks,lists={}){
+ scheme=uniqueScheme(scheme);
  const visible=schemeCells(scheme,blocks,lists).filter(c=>c.block);
  const anchors=Object.keys(scheme.anchors).length?scheme.anchors:Object.fromEntries([visible[0],visible.at(-1)].filter(Boolean).map(c=>[c.index,c.block.id]));
  return {...scheme,tiles:fillScheme({...scheme,anchors},blocks,lists).map(c=>c.id||c.block?.id||null)};
 }
 export function resizeScheme(scheme,length){
- const tiles=scheme.tiles?.length?Array.from({length},(_,i)=>scheme.tiles[Math.round(i/(length-1)*(scheme.length-1))]):undefined;
- return {...scheme,length,tiles,anchors:resizeAnchors(scheme.anchors,scheme.length,length)};
+ scheme=uniqueScheme(scheme);
+ const tiles=scheme.tiles?Array(length).fill(null):undefined;
+ scheme.tiles?.forEach((id,i)=>{if(id)tiles[Math.round(i/(scheme.length-1)*(length-1))]=id;});
+ return uniqueScheme({...scheme,length,tiles,anchors:resizeAnchors(scheme.anchors,scheme.length,length)});
 }
 /** Reorder within a row; move across rows; releasing outside any row deletes.
  * The configured length stays fixed, so deletion leaves an empty slot. */
 export function dropSchemeBlock(schemes,drop,blocks,lists={}){
+ schemes=schemes.map(uniqueScheme);
  const source=drop.source&&schemes.find(s=>s.id===drop.source.scheme);
  if(source&&drop.scheme===source.id){
   const cells=schemeCells(source,blocks,lists),order=cells.map(c=>({id:c.id||c.block?.id||null,pin:!!source.anchors[c.index]}));
@@ -37,7 +56,11 @@ export function dropSchemeBlock(schemes,drop,blocks,lists={}){
   if(s.id!==source?.id&&s.id!==drop.scheme)return s;
   const tiles=schemeCells(s,blocks,lists).map(c=>c.id||c.block?.id||null),anchors={...s.anchors};
   if(s.id===source?.id){tiles[drop.source.slot]=null;delete anchors[drop.source.slot];}
-  if(s.id===drop.scheme){tiles[drop.slot]=drop.block;if(pinned)anchors[drop.slot]=drop.block;else delete anchors[drop.slot];}
+  if(s.id===drop.scheme){
+   const existing=tiles.indexOf(drop.block),keepPin=pinned||(existing>=0&&!!anchors[existing]);
+   if(existing>=0){tiles[existing]=null;delete anchors[existing];}
+   tiles[drop.slot]=drop.block;if(keepPin)anchors[drop.slot]=drop.block;else delete anchors[drop.slot];
+  }
   return {...s,tiles,anchors};
  });
 }
@@ -104,12 +127,14 @@ export function slerpColour(a,b,t,space){
  return rgb.map(v=>Math.max(0,Math.min(1,v)));
 }
 /** Exact anchors survive filtering; missing release anchors keep their slots.
- * Unanchored cells choose the nearest eligible material in the selected space. */
+ * Unanchored cells choose the nearest unused eligible block in the selected space. */
 /** @param {any} scheme @param {any[]} blocks @param {{collection?:string[],blacklist?:string[]}} lists */
 export function fillScheme(scheme,blocks,{collection=[],blacklist=[]}={}){
+ scheme=uniqueScheme(scheme);
  const byId=new Map(blocks.map(b=>[b.id,b]));
  const anchors=Object.entries(scheme.anchors).map(([i,id])=>({index:Number(i),id,block:byId.get(id)})).sort((a,b)=>a.index-b.index);
  const valid=anchors.filter(a=>a.block?.hex);
+ const used=new Set(anchors.map(a=>a.id));
  const candidates=filterBlocks(blocks,{...scheme.filters,space:scheme.space,custom:scheme.filters.list==='collection'?collection:scheme.filters.list==='blacklist'?blacklist:null,blacklist:scheme.filters.list==='blacklist'?[]:blacklist}).filter(b=>b.hex&&b.renderStatus!=='invisible').map(block=>({block,point:project(hexRgb(block.hex),scheme.space)}));
  return Array.from({length:scheme.length},(_,index)=>{
   const anchor=anchors.find(a=>a.index===index);
@@ -119,7 +144,8 @@ export function fillScheme(scheme,blocks,{collection=[],blacklist=[]}={}){
   const interpolate=scheme.interpolation==='slerp'?slerpColour:lerpColour;
   const rgb=interpolate(hexRgb(left.block.hex),hexRgb(right.block.hex),left.index===right.index?0:(index-left.index)/(right.index-left.index),scheme.space),point=project(rgb,scheme.space);
   let best=null,distance=Infinity;
-  for(const c of candidates){const d=c.point.reduce((sum,v,i)=>sum+(v-point[i])**2,0);if(d<distance){best=c.block;distance=d;}}
+  for(const c of candidates){if(used.has(c.block.id))continue;const d=c.point.reduce((sum,v,i)=>sum+(v-point[i])**2,0);if(d<distance){best=c.block;distance=d;}}
+  if(best)used.add(best.id);
   return {index,anchor:false,block:best,target:rgbHex(rgb)};
  });
 }

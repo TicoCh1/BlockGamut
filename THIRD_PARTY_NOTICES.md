@@ -24,6 +24,9 @@ licenses remain applicable. Minecraft textures, models and related assets © Moj
   Identical texture pixels are stored once; release changes use incremental
   catalog, model and animation records. Models show representative
   placed states, including static previews for special renderers.
+  The scheme pin badge uses the unchanged Java 26.3 GUI sprite
+  `assets/minecraft/textures/gui/sprites/container/cartography_table/locked.png`
+  (bundled as `src/assets/minecraft-locked.png`).
   See `licenses/MINECRAFT-ASSETS.md`.
 - Palette colours and surface statistics derive from each selected release's
   original Minecraft face texels, weighted by face area and transparency.

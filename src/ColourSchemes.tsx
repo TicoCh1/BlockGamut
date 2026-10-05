@@ -2,10 +2,10 @@ import {BlockThumbnail} from './BlockThumbnail';
 import {DraggableBlock} from './DraggableBlock';
 import {useEffect,useMemo,useState} from 'react';
 import {GlassPanel,GlassButton,GlassInput,GlassSelect,GlassSwitch,GlassScrollArea,GlassDialog} from '@form-glass/react';
-import {Plus,Settings2,X,Pin,RotateCcw} from 'lucide-react';
+import {Plus,Settings2,X,RotateCcw} from 'lucide-react';
 import {GeometryFilter} from './GeometryFilter';
 import {VarianceRange} from './VarianceRange';
-import {schemeCells,toggleSchemePin,refreshScheme,dropSchemeBlock,resizeScheme,schemeLength,schemeMime} from './schemes.mjs';
+import {uniqueScheme,schemeCells,toggleSchemePin,refreshScheme,dropSchemeBlock,resizeScheme,schemeLength,schemeMime} from './schemes.mjs';
 import {spaces} from './spaces.mjs';
 import {materialVariance,filterBlocks} from './color.mjs';
 import {useLocale} from './i18n';
@@ -32,7 +32,7 @@ function SchemeRow({scheme,blocks,resources,collection,blacklist,onChange,onDele
   </div>
   <GlassScrollArea label="Scheme blocks" height={78} viewportClassName="scheme-cells-viewport"><div className="scheme-cells">
    {cells.map(cell=><div key={cell.index} className="scheme-cell" data-scheme-id={scheme.id} data-scheme-slot={cell.index} data-anchor={cell.anchor} data-selected={slot===cell.index} data-drop={hover===cell.index} onDragOver={e=>{if(e.dataTransfer.types.includes(schemeMime)||e.dataTransfer.types.includes('text/plain')){e.preventDefault();e.dataTransfer.dropEffect='copy';setHover(cell.index);}}} onDragLeave={()=>setHover(null)} onDrop={e=>{e.preventDefault();setHover(null);const id=e.dataTransfer.getData(schemeMime)||e.dataTransfer.getData('text/plain');if(blocks.some(b=>b.id===id))document.dispatchEvent(new CustomEvent('block-gamut-scheme-drop',{detail:{scheme:scheme.id,slot:cell.index,block:id}}));}}>
-    <DraggableBlock id={cell.id||cell.block?.id||''} name={cell.block?.name||cell.id||t('Empty slot')} source={{scheme:scheme.id,slot:cell.index}} className="scheme-block" onClick={()=>toggle(cell.index)}><GlassButton aria-label={`${t('Scheme slot')} ${cell.index+1}: ${cell.id||cell.block?.id||'minecraft:air'}`} aria-pressed={cell.anchor} title={cell.block?`${cell.block.name} · ${cell.block.id}\n${t('Click to pin or unpin')}`:cell.id?`${cell.id} · ${t('Unavailable in this release')}`:t('Drop a block here')} onClick={e=>{if(e.detail===0)toggle(cell.index);}}>{cell.block?<BlockThumbnail id={cell.block.id} resources={resources}/>:<span aria-hidden="true">+</span>}{cell.anchor&&<Pin className="scheme-pin" size={9}/>}</GlassButton></DraggableBlock>
+    <DraggableBlock id={cell.id||cell.block?.id||''} name={cell.block?.name||cell.id||t('Empty slot')} source={{scheme:scheme.id,slot:cell.index}} className="scheme-block" onClick={()=>toggle(cell.index)}><GlassButton aria-label={`${t('Scheme slot')} ${cell.index+1}: ${cell.id||cell.block?.id||'minecraft:air'}`} aria-pressed={cell.anchor} title={cell.block?`${cell.block.name} · ${cell.block.id}\n${t('Click to pin or unpin')}`:cell.id?`${cell.id} · ${t('Unavailable in this release')}`:t('Drop a block here')} onClick={e=>{if(e.detail===0)toggle(cell.index);}}>{cell.block?<BlockThumbnail id={cell.block.id} resources={resources}/>:<span aria-hidden="true">+</span>}{cell.anchor&&<span className="scheme-pin" aria-hidden="true"/>}</GlassButton></DraggableBlock>
     <span className="scheme-target" style={{background:cell.target||'transparent'}} title={cell.target||t('No control points')}/>
    </div>)}
   </div></GlassScrollArea>
@@ -42,7 +42,12 @@ function SchemeRow({scheme,blocks,resources,collection,blacklist,onChange,onDele
 
 export function ColourSchemes({blocks,resources,selected,space,categories,collection,blacklist,onPick}:{blocks:Block[];resources:ModelResources|null;selected:Block|undefined;space:Space;categories:string[];collection:string[];blacklist:string[];onPick:(id:string)=>void}){
  const {view,t}=useLocale();
- const [schemes,setSchemes]=useState<Scheme[]>(()=>JSON.parse(localStorage.getItem('block-gamut-schemes')||'[]',(_key,value)=>value==='Infinity'?Infinity:value).map((s:Scheme)=>s.tiles?s:{...s,tiles:schemeCells(s,blocks,{collection,blacklist}).map(c=>c.id||c.block?.id||null)}));
+ const [schemes,setSchemes]=useState<Scheme[]>(()=>JSON.parse(localStorage.getItem('block-gamut-schemes')||'[]',(_key,value)=>value==='Infinity'?Infinity:value).map((s:Scheme)=>{
+  const normalized=uniqueScheme(s);
+  const ids=s.tiles?.filter(Boolean)||[];
+  if(new Set(ids).size<ids.length)return refreshScheme(normalized,blocks,{collection,blacklist});
+  return normalized.tiles?normalized:{...normalized,tiles:schemeCells(normalized,blocks,{collection,blacklist}).map(c=>c.id||c.block?.id||null)};
+ }));
  const [settings,setSettings]=useState<string|null>(null),[expanded,setExpanded]=useState(true),[mobileOpen,setMobileOpen]=useState(false);
  useEffect(()=>localStorage.setItem('block-gamut-schemes',JSON.stringify(schemes,(_key,value)=>value===Infinity?'Infinity':value)),[schemes]);
  useEffect(()=>{const drop=(event:Event)=>setSchemes(list=>dropSchemeBlock(list,(event as CustomEvent).detail,blocks,{collection,blacklist}));document.addEventListener('block-gamut-scheme-drop',drop);return()=>document.removeEventListener('block-gamut-scheme-drop',drop);},[blocks,collection,blacklist]);
